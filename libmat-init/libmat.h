@@ -8,7 +8,7 @@
  
 #include <stdio.h>
 
-typedef float num_t;
+typedef double num_t;
 
 typedef struct {
 	int nl, nc;
