@@ -32,7 +32,7 @@ num_t mat_det(mat_t *m) {
     num_t det = 0;
 
     for (int l = 0; l < m->nc; ++l) {
-        int signe = my_pow(-1, l + 2);
+        int sine = my_pow(-1, l + 2);
 
 
         mat_t *sub_mat = mat_new(m->nc - 1, m->nl - 1);
@@ -50,7 +50,7 @@ num_t mat_det(mat_t *m) {
         num_t value = mat_get(m, 0, l);
         num_t detSubMat = mat_det(sub_mat);
 
-        det += signe * value * detSubMat;
+        det += sine * value * detSubMat;
 
         mat_free(sub_mat);
     }
@@ -118,7 +118,29 @@ mat_t *mat_raz(mat_t *m) {
 mat_t *mat_red(mat_t *m, int l, int c, mat_t *r) {
     /* renvoie la matrice carrée réduite après suppression
      * de la ligne l et de la colonne c */
-    return NULL;
+
+    if (m->nc != m->nl) {
+        return NULL;
+    }
+
+
+    if (r == NULL) {
+        r = mat_new(m->nl - 1, m->nc - 1);
+    }
+
+    int count = 0;
+    for (int i = 0; i < m->nl; ++i) {
+        if (i != l) {
+            for (int j = 0; j < m->nc; ++j) {
+                if (j != c) {
+                    r->m[count] = mat_get(m, i, j);
+                    count++;
+                }
+            }
+        }
+    }
+
+    return r;
 }
 
 mat_t *mat_rnd(mat_t *m, num_t vmax) {

@@ -18,9 +18,11 @@ int main(int argc, char *argv[]) {
     mat_t *mat = mat_new(4, 4);
     mat = mat_rnd(mat, 5);
 
-    mat_print(mat, "ohiuhu");
+    mat_print(mat, "Matrice aléatoire");
 
 
-    printf("%lf\n", mat_det(mat));
+    printf("Det(A)=%lf\n", mat_det(mat));
+
+    mat_print(mat_red(mat, 1,1, NULL),"Matrice réduite en 1, 1");
 
 }
