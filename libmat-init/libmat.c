@@ -13,8 +13,27 @@ int my_pow(int a, int p) {
 }
 
 mat_t *mat_add(mat_t *m1, mat_t *m2, mat_t *r) {
-    return NULL;
+
+    if (m1->nc != m2->nc || m1->nl != m2->nl) {
+        return NULL;
+    }
+
+    if (r == NULL) {
+        r = mat_new(m1->nl, m1->nc);
+    } else if (r->nc != m1->nc || r->nl != m1->nl) {
+        return NULL;
+    }
+
+    for (int i = 0; i < r->nl; ++i) {
+        for (int j = 0; j < r->nc; ++j) {
+            num_t v = mat_get(m1, i, j) + mat_get(m2, i, j);
+            mat_set(r, i, j, v);
+        }
+    }
+
+    return r;
 }
+
 
 mat_t *mat_cof(mat_t *m, mat_t *r) {
 
@@ -91,8 +110,49 @@ num_t mat_get(mat_t *m, int i, int j) {
     return m->m[i * m->nc + j];
 }
 
+mat_t *mat_val(mat_t *m, num_t v) {
+    for (int i = 0; i < m->nl; ++i) {
+        for (int j = 0; j < m->nc; ++j) {
+            mat_set(m, i, j, v);
+        }
+    }
+
+    return m;
+}
+
 mat_t *mat_inv(mat_t *m, mat_t *r) {
-    return NULL;
+
+    if (m->nl != m->nc) {
+        return NULL;
+    }
+
+    if (r == NULL) {
+        r = mat_new(m->nl, m->nc);
+    } else if (r->nc != m->nc || r->nl != m->nl) {
+        return NULL;
+    }
+
+    num_t detM = mat_det(m);
+
+    if (detM == 0) {
+        return NULL;
+    }
+
+    mat_t *transComM = mat_transp(m, mat_cof(m, NULL));
+
+    mat_t *identity = mat_unity(mat_new(m->nl, m->nc));
+    mat_t *matVal = mat_val(mat_new(m->nl, m->nc), 1.0 / detM);
+
+    mat_t *matDet = mat_prod(identity, matVal, NULL);
+
+    mat_prod(matDet, transComM, r);
+
+    mat_free(matDet);
+    mat_free(matVal);
+    mat_free(identity);
+    mat_free(transComM);
+
+    return r;
 }
 
 mat_t *mat_new(int i, int j) {
@@ -216,7 +276,24 @@ void mat_set(mat_t *m, int i, int j, num_t v) {
 }
 
 mat_t *mat_sub(mat_t *m1, mat_t *m2, mat_t *r) {
-    return NULL;
+    if (m1->nc != m2->nc || m1->nl != m2->nl) {
+        return NULL;
+    }
+
+    if (r == NULL) {
+        r = mat_new(m1->nl, m1->nc);
+    } else if (r->nc != m1->nc || r->nl != m1->nl) {
+        return NULL;
+    }
+
+    for (int i = 0; i < r->nl; ++i) {
+        for (int j = 0; j < r->nc; ++j) {
+            num_t v = mat_get(m1, i, j) - mat_get(m2, i, j);
+            mat_set(r, i, j, v);
+        }
+    }
+
+    return r;
 }
 
 mat_t *mat_transp(mat_t *m, mat_t *r) {

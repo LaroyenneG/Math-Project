@@ -47,6 +47,8 @@ mat_t *mat_unity(mat_t *m);
 
 mat_t *mat_cof(mat_t *m, mat_t *r);
 
+mat_t *mat_val(mat_t *m, num_t v);
+
 int my_pow(int a, int p);
 
 #endif
