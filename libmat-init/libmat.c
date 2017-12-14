@@ -113,7 +113,11 @@ num_t mat_get(mat_t *m, int i, int j) {
 mat_t *mat_val(mat_t *m, num_t v) {
     for (int i = 0; i < m->nl; ++i) {
         for (int j = 0; j < m->nc; ++j) {
-            mat_set(m, i, j, v);
+            if (j == i) {
+                mat_set(m, i, j, v);
+            } else {
+                mat_set(m, i, j, 0.0);
+            }
         }
     }
 
@@ -138,19 +142,16 @@ mat_t *mat_inv(mat_t *m, mat_t *r) {
         return NULL;
     }
 
-    mat_t *transComM = mat_transp(m, mat_cof(m, NULL));
+    mat_t *comM = mat_cof(m, NULL);
+    mat_t *transComM = mat_transp(comM, NULL);
 
-    mat_t *identity = mat_unity(mat_new(m->nl, m->nc));
     mat_t *matVal = mat_val(mat_new(m->nl, m->nc), 1.0 / detM);
 
-    mat_t *matDet = mat_prod(identity, matVal, NULL);
+    mat_prod(matVal, transComM, r);
 
-    mat_prod(matDet, transComM, r);
-
-    mat_free(matDet);
-    mat_free(matVal);
-    mat_free(identity);
+    mat_free(comM);
     mat_free(transComM);
+    mat_free(matVal);
 
     return r;
 }
