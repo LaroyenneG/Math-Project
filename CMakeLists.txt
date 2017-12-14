@@ -9,4 +9,4 @@ add_executable(Math_Project
         libmat-init/libmat.c
         libmat-init/libmat.h
         libmat-init/pend0.c
-        libmat-init/pendflot.c)
+        libmat-init/pendflot.c pendule_22.c)
