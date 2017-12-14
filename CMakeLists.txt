@@ -8,4 +8,5 @@ add_executable(Math_Project
         libmat-init/libdebug.h
         libmat-init/libmat.c
         libmat-init/libmat.h
-        libmat-init/pend0.c)
+        libmat-init/pend0.c
+        libmat-init/pendflot.c)

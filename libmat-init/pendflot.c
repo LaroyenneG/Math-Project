@@ -9,6 +9,7 @@ union value {
 	unsigned char c[FLOAT_SIZE];
 };
 
+/*
 int main(int argc, char *argv[]) {
 	union value v;
 	int i;
@@ -23,3 +24,4 @@ int main(int argc, char *argv[]) {
 	}
 	return(EXIT_SUCCESS);
 }
+*/
