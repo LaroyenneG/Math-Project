@@ -151,7 +151,9 @@ mat_t *mat_prod(mat_t *m1, mat_t *m2, mat_t *r) {
             int v = 0;
 
             for (int k = 0; k < len; ++k) {
-                v += mat_get(m1, i, k) * mat_get(m2, k, j);
+                num_t a = mat_get(m1, i, k);
+                num_t b = mat_get(m2, k, j);
+                v += a * b;
             }
 
             mat_set(r, i, j, v);

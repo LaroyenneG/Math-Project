@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
     mat_print(mat1, "Matrice aléatoire 1");
 
     mat_t *mat2 = mat_new(3, 3);
-    mat1 = mat_rnd(mat2, 10);
+    mat2 = mat_rnd(mat2, 10);
 
     mat_print(mat2, "Matrice aléatoire 2");
 
