@@ -49,7 +49,7 @@ num_t **build_euler(num_t (*f)(num_t, num_t), num_t t0, num_t tf, num_t y0, int 
     t_table[0] = t0;
 
     for (int i = 1; i < n; ++i) {
-        y += pas * f(y, t);
+        y += pas * f(t, y);
         t += pas;
         y_table[i] = y;
         t_table[i] = t;
@@ -61,7 +61,9 @@ num_t **build_euler(num_t (*f)(num_t, num_t), num_t t0, num_t tf, num_t y0, int 
     return table;
 }
 
-
+/*
+ * Retourn la valeur approché
+ */
 num_t euler(num_t (*f)(num_t, num_t), num_t t0, num_t tf, num_t y0, int app) {
 
     num_t **table = build_euler(f, t0, tf, y0, app);
@@ -96,15 +98,19 @@ int main(int argc, char **argv) {
     num_t t = 0.0;
     num_t h = H;
 
+
     printf("t\t\t1-exp(-t)\ty (rk4)\n");
-    for (int i = 0; i < 200; ++i, t += h) {
+    for (int i = 0; i < 10; ++i, t += h) {
         printf("%lf\t%lf\t%lf\n", t, 1 - exp(-t), y);
         y = rk4(&f, h, 0.0, y);
     }
 
 
+    num_t ** tt = build_euler(&f,0.0, 20.0,0.0, 100);
 
-
+    for (int j = 0; j < 100; ++j) {
+        printf("%lf\n",tt[0][j]);
+    }
 
     return 0;
 }
