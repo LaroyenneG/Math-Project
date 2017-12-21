@@ -9,7 +9,47 @@
 
 #include "libmat.h"
 
-#define H 0.1
+
+
+/* pendule_22.h
+ *
+ * Code normalement stocké dans le fichier d'entête. Il est exceptionnellement placé
+ * dans ce fichier en raison des contraintes de remise.
+ */
+
+
+#define BAR_TOTAL_LENGTH 100.0
+#define BAR_DIAMETER 1.0
+#define BAR_MASS 0.2
+#define FLYWEIGHT_HEIGHT 7.0
+#define OUTER_DIAMETER_FLYWEIGHT 6.0
+#define DISTANCE_CENTER_FLYWEIGHT_PINTLE 95.0
+#define MASS_FLYWEIGHT 0.30
+#define MASS_CAR 1.20
+#define LINEAR_FRICTION_CAR 0.001
+#define PINTLE_FRICTION 20.0
+
+
+typedef struct point {
+    int x;
+    int y;
+} point_t;
+
+typedef struct flyweight {
+    point_t position;
+    int energy;
+} flyweight_t;
+
+typedef struct cart {
+    point_t position;
+} cart_t;
+
+/*
+ * end pendule_22.h
+ */
+
+
+
 
 
 num_t rk4(num_t (*f)(num_t, num_t), num_t h, num_t x, num_t y);
@@ -92,20 +132,6 @@ num_t rk4(num_t (*f)(num_t, num_t), num_t h, num_t x, num_t y) {
 int main(int argc, char **argv) {
 
     setlocale(LC_NUMERIC, "fr_FR.UTF-8");
-
-
-    num_t y = 0.0;
-    num_t t = 0.0;
-    num_t h = H;
-
-    int size=200;
-    num_t ** tt = build_euler(&f,0.0, 20.0,0.0, size);
-
-    printf("t\t\t1-exp(-t)\ty (rk4)\t\ty (euler)\n");
-    for (int i = 0; i < 200; ++i, t += h) {
-        printf("%lf\t%lf\t%lf\t%lf\n", t, 1 - exp(-t), y,tt[0][i]);
-        y = rk4(&f, h, 0.0, y);
-    }
 
     return 0;
 }
