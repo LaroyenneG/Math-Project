@@ -11,54 +11,130 @@
 
 
 
-/* pendule_22.h
- *
+/*
  * Code normalement stocké dans le fichier d'entête. Il est exceptionnellement placé
  * dans ce fichier en raison des contraintes de remise.
  */
 
+/****************************************************************************************************
+ * pendule_22.h
+ ***************************************************************************************************/
 
-#define BAR_TOTAL_LENGTH 100.0
-#define BAR_DIAMETER 1.0
+#define GRAVITY 9.807
+
+#define BAR_TOTAL_LENGTH 1.0
+#define BAR_DIAMETER 0.001
 #define BAR_MASS 0.2
-#define FLYWEIGHT_HEIGHT 7.0
-#define OUTER_DIAMETER_FLYWEIGHT 6.0
-#define DISTANCE_CENTER_FLYWEIGHT_PINTLE 95.0
+#define FLYWEIGHT_HEIGHT 0.007
+#define OUTER_DIAMETER_FLYWEIGHT 0.006
+#define DISTANCE_CENTER_FLYWEIGHT_PINTLE 0.95
 #define MASS_FLYWEIGHT 0.30
 #define MASS_CAR 1.20
 #define LINEAR_FRICTION_CAR 0.001
 #define PINTLE_FRICTION 20.0
 
+#define H 0.03
 
-typedef struct point {
-    int x;
-    int y;
+
+typedef struct {
+
+    double x;
+    double y;
+
 } point_t;
 
-typedef struct flyweight {
+
+typedef struct {
+
     point_t position;
-    int energy;
-} flyweight_t;
+    point_t velocityVector;
+    double mass;
+    double weight_t;
+    double friction;
 
-typedef struct cart {
+} trolley_t;
+
+typedef struct {
+
     point_t position;
-} cart_t;
+    point_t velocityVector;
+    double mass;
 
-/*
- * end pendule_22.h
- */
+} weight_t;
+
+typedef struct {
+
+    point_t position;
+    double angle;
+    double velocityAngle;
+    double friction;
+
+} pivot_t;
+
+typedef struct {
+
+    trolley_t trolley;
+    pivot_t pivot;
+    weight_t weight;
+    point_t inertiaCenter;
+    double mechanicalEnergy;
+    double potentialEnergy;
+    double kineticEnergy;
+    double barLength;
+    double barMass;
+
+} system_t;
 
 
+system_t buildSystem(double angle);
 
+
+point_t interpolatePoint(point_t point1, point_t point2, double f);
 
 
 num_t rk4(num_t (*f)(num_t, num_t), num_t h, num_t x, num_t y);
 
 num_t euler(num_t (*f)(num_t, num_t), num_t t0, num_t tf, num_t y0, int app);
 
+/****************************************************************************************************
+ * end pendule_22.h
+ ***************************************************************************************************/
+
+
+point_t interpolatePoint(point_t point1, point_t point2, double f) {
+
+    point_t result;
+
+    result.x = f * point1.x + (1 - f) * point2.x;
+    result.y = f * point1.y + (1 - f) * point2.y;
+
+    return result;
+}
+
+double distancePoint(point_t point1, point_t point2) {
+
+    return sqrt(pow(point1.x - point2.x, 2.0) + pow(point2.y - point2.y, 2.0));
+}
+
+
+system_t buildSystem(double angle) {
+
+    system_t system;
+
+    system.pivot.angle = angle;
+    system.trolley.position.x = 0.0;
+    system.trolley.position.y = 0.0;
+
+
+    return system;
+}
+
+
+/*
 num_t f(num_t t, num_t y) {
     return 1 - y;
 }
+*/
 
 
 num_t **build_euler(num_t (*f)(num_t, num_t), num_t t0, num_t tf, num_t y0, int n) {
