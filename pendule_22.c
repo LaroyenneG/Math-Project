@@ -21,6 +21,7 @@
  ***************************************************************************************************/
 
 #define GRAVITY 9.807
+#define PI 3.141592653589793
 
 #define BAR_TOTAL_LENGTH 1.0
 #define BAR_DIAMETER 0.001
@@ -97,6 +98,11 @@ typedef struct {
 system_t buildSystem(double angle);
 
 
+double potentialEnergySystem(system_t system);
+
+double kineticEnergySystem(system_t system);
+
+
 point_t interpolatePoint(point_t point1, point_t point2, double f);
 
 
@@ -129,7 +135,7 @@ system_t buildSystem(double angle) {
 
     system_t system;
 
-    system.pivot.angle = angle;
+    system.pivot.angle = angle * PI / 180;
     system.pivot.velocityAngle = 0.0;
 
     system.trolley.position.x = 0.0;
@@ -152,6 +158,10 @@ system_t buildSystem(double angle) {
     system.bar.b.x = system.trolley.position.x;
     system.bar.b.y = system.bar.length;
 
+    system.kineticEnergy = kineticEnergySystem(system);
+    system.potentialEnergy = potentialEnergySystem(system);
+    system.mechanicalEnergy = system.mechanicalEnergy + system.kineticEnergy;
+
 
     system.inertiaCenter = interpolatePoint(system.trolley.position, system.weight.position,
                                             system.trolley.mass / (system.trolley.mass + system.weight.mass));
@@ -172,7 +182,7 @@ double potentialEnergySystem(system_t system) {
            (1 - cos(system.pivot.angle));
 }
 
-double kineticEnergy(system_t system) {
+double kineticEnergySystem(system_t system) {
     point_t center;
     center.x = 0.0;
     center.y = 0.0;
@@ -252,6 +262,8 @@ num_t rk4(num_t (*f)(num_t, num_t), num_t h, num_t x, num_t y) {
 int main(int argc, char **argv) {
 
     setlocale(LC_NUMERIC, "fr_FR.UTF-8");
+
+    system_t system = buildSystem(10.0);
 
     return 0;
 }
