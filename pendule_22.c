@@ -58,6 +58,7 @@ typedef struct {
 
     point_t position;
     point_t velocityVector;
+    point_t gravityCenter;
     double mass;
 
 } weight_t;
@@ -75,6 +76,7 @@ typedef struct {
 
     point_t a;
     point_t b;
+    point_t gravityCenter;
     double length;
     double mass;
     double diameter;
@@ -88,6 +90,7 @@ typedef struct {
     weight_t weight;
     bar_t bar;
     point_t inertiaCenter;
+    point_t pendulumGravityCenter;
     double mechanicalEnergy;
     double potentialEnergy;
     double kineticEnergy;
@@ -102,9 +105,13 @@ double potentialEnergySystem(system_t system);
 
 double kineticEnergySystem(system_t system);
 
+point_t pendulumGravityCenterSystem(system_t system);
 
 point_t interpolatePoint(point_t point1, point_t point2, double f);
 
+point_t barGravityCenterSystem(system_t system);
+
+point_t weightGravityCenterSystem(system_t system);
 
 num_t rk4(num_t (*f)(num_t, num_t), num_t h, num_t x, num_t y);
 
@@ -150,6 +157,7 @@ system_t buildSystem(double angle) {
     system.weight.velocityVector.y = 0.0;
     system.weight.position.x = system.trolley.position.x;
     system.weight.position.y = -DISTANCE_CENTER_FLYWEIGHT_PINTLE;
+    system.weight.gravityCenter = weightGravityCenterSystem(system);
 
     system.bar.mass = BAR_MASS;
     system.bar.diameter = BAR_DIAMETER;
@@ -157,16 +165,53 @@ system_t buildSystem(double angle) {
     system.bar.a = system.pivot.position;
     system.bar.b.x = system.trolley.position.x;
     system.bar.b.y = system.bar.length;
+    system.bar.gravityCenter = barGravityCenterSystem(system);
 
     system.kineticEnergy = kineticEnergySystem(system);
     system.potentialEnergy = potentialEnergySystem(system);
     system.mechanicalEnergy = system.mechanicalEnergy + system.kineticEnergy;
 
 
+    system.pendulumGravityCenter = pendulumGravityCenterSystem(system);
+
     system.inertiaCenter = interpolatePoint(system.trolley.position, system.weight.position,
                                             system.trolley.mass / (system.trolley.mass + system.weight.mass));
 
     return system;
+}
+
+point_t pendulumGravityCenterSystem(system_t system) {
+
+    point_t g;
+
+    g.x = (system.bar.gravityCenter.x + system.weight.gravityCenter.x) / (system.bar.mass + system.weight.mass);
+    g.y = (system.bar.gravityCenter.y + system.weight.gravityCenter.y) / (system.bar.mass + system.weight.mass);
+
+    return g;
+}
+
+
+point_t barGravityCenterSystem(system_t system) {
+
+    point_t g;
+
+    /*
+     * a completer
+     */
+
+    return g;
+}
+
+
+point_t weightGravityCenterSystem(system_t system) {
+
+    point_t g;
+
+    /*
+     * a completer
+     */
+
+    return g;
 }
 
 
