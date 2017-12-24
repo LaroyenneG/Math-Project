@@ -56,7 +56,8 @@ typedef struct {
 
 typedef struct {
 
-    point_t position;
+    point_t a;
+    point_t b;
     point_t velocityVector;
     point_t gravityCenter;
     double mass;
@@ -109,9 +110,8 @@ point_t pendulumGravityCenterSystem(system_t system);
 
 point_t interpolatePoint(point_t point1, point_t point2, double f);
 
-point_t barGravityCenterSystem(system_t system);
+point_t rectangleGravityCenter(point_t a, point_t b);
 
-point_t weightGravityCenterSystem(system_t system);
 
 num_t rk4(num_t (*f)(num_t, num_t), num_t h, num_t x, num_t y);
 
@@ -137,7 +137,7 @@ double distancePoint(point_t point1, point_t point2) {
     return sqrt(pow(point1.x - point2.x, 2.0) + pow(point2.y - point2.y, 2.0));
 }
 
-
+// angle en degré !
 system_t buildSystem(double angle) {
 
     system_t system;
@@ -155,17 +155,20 @@ system_t buildSystem(double angle) {
     system.weight.mass = MASS_FLYWEIGHT;
     system.weight.velocityVector.x = 0.0;
     system.weight.velocityVector.y = 0.0;
-    system.weight.position.x = system.trolley.position.x;
-    system.weight.position.y = -DISTANCE_CENTER_FLYWEIGHT_PINTLE;
-    system.weight.gravityCenter = weightGravityCenterSystem(system);
+    system.weight.a.x = system.pivot.position.x - OUTER_DIAMETER_FLYWEIGHT / 2.0;
+    system.weight.a.y = system.pivot.position.y + (DISTANCE_CENTER_FLYWEIGHT_PINTLE - FLYWEIGHT_HEIGHT / 2.0);
+    system.weight.b.x = system.pivot.position.x + OUTER_DIAMETER_FLYWEIGHT / 2.0;
+    system.weight.b.y = system.pivot.position.y + (DISTANCE_CENTER_FLYWEIGHT_PINTLE + FLYWEIGHT_HEIGHT / 2.0);
+    system.weight.gravityCenter = rectangleGravityCenter(system.weight.a, system.weight.b);
 
     system.bar.mass = BAR_MASS;
     system.bar.diameter = BAR_DIAMETER;
     system.bar.length = BAR_TOTAL_LENGTH;
-    system.bar.a = system.pivot.position;
-    system.bar.b.x = system.trolley.position.x;
-    system.bar.b.y = system.bar.length;
-    system.bar.gravityCenter = barGravityCenterSystem(system);
+    system.bar.a.x = system.pivot.position.x - BAR_DIAMETER / 2.0;
+    system.bar.a.y = system.pivot.position.y;
+    system.bar.b.x = system.pivot.position.x + BAR_DIAMETER / 2.0;
+    system.bar.b.y = system.pivot.position.y + system.bar.length;
+    system.bar.gravityCenter = rectangleGravityCenter(system.bar.a, system.bar.b);
 
     system.kineticEnergy = kineticEnergySystem(system);
     system.potentialEnergy = potentialEnergySystem(system);
@@ -174,7 +177,7 @@ system_t buildSystem(double angle) {
 
     system.pendulumGravityCenter = pendulumGravityCenterSystem(system);
 
-    system.inertiaCenter = interpolatePoint(system.trolley.position, system.weight.position,
+    system.inertiaCenter = interpolatePoint(system.trolley.position, system.weight.gravityCenter,
                                             system.trolley.mass / (system.trolley.mass + system.weight.mass));
 
     return system;
@@ -191,25 +194,12 @@ point_t pendulumGravityCenterSystem(system_t system) {
 }
 
 
-point_t barGravityCenterSystem(system_t system) {
+point_t rectangleGravityCenter(point_t a, point_t b) {
 
     point_t g;
 
-    /*
-     * a completer
-     */
-
-    return g;
-}
-
-
-point_t weightGravityCenterSystem(system_t system) {
-
-    point_t g;
-
-    /*
-     * a completer
-     */
+    g.x = (b.x - a.x) / 2;
+    g.y = (b.y - a.y) / 2;
 
     return g;
 }
@@ -223,7 +213,7 @@ num_t f(num_t t, num_t y) {
 */
 
 double potentialEnergySystem(system_t system) {
-    return system.weight.mass * GRAVITY * distancePoint(system.pivot.position, system.weight.position) *
+    return system.weight.mass * GRAVITY * distancePoint(system.pivot.position, system.weight.gravityCenter) *
            (1 - cos(system.pivot.angle));
 }
 
