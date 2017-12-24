@@ -49,7 +49,6 @@ typedef struct {
     point_t position;
     point_t velocityVector;
     double mass;
-    double weight_t;
     double friction;
 
 } trolley_t;
@@ -73,15 +72,24 @@ typedef struct {
 
 typedef struct {
 
+    point_t a;
+    point_t b;
+    double length;
+    double mass;
+    double diameter;
+
+} bar_t;
+
+typedef struct {
+
     trolley_t trolley;
     pivot_t pivot;
     weight_t weight;
+    bar_t bar;
     point_t inertiaCenter;
     double mechanicalEnergy;
     double potentialEnergy;
     double kineticEnergy;
-    double barLength;
-    double barMass;
 
 } system_t;
 
@@ -122,9 +130,31 @@ system_t buildSystem(double angle) {
     system_t system;
 
     system.pivot.angle = angle;
+    system.pivot.velocityAngle = 0.0;
+
     system.trolley.position.x = 0.0;
     system.trolley.position.y = 0.0;
+    system.trolley.mass = MASS_CAR;
+    system.trolley.friction = 0.0;
+    system.trolley.velocityVector.x = 0.0;
+    system.trolley.velocityVector.y = 0.0;
 
+    system.weight.mass = MASS_FLYWEIGHT;
+    system.weight.velocityVector.x = 0.0;
+    system.weight.velocityVector.y = 0.0;
+    system.weight.position.x = system.trolley.position.x;
+    system.weight.position.y = -DISTANCE_CENTER_FLYWEIGHT_PINTLE;
+
+    system.bar.mass = BAR_MASS;
+    system.bar.diameter = BAR_DIAMETER;
+    system.bar.length = BAR_TOTAL_LENGTH;
+    system.bar.a = system.pivot.position;
+    system.bar.b.x = system.trolley.position.x;
+    system.bar.b.y = system.bar.length;
+
+
+    system.inertiaCenter = interpolatePoint(system.trolley.position, system.weight.position,
+                                            system.trolley.mass / (system.trolley.mass + system.weight.mass));
 
     return system;
 }
@@ -134,8 +164,22 @@ system_t buildSystem(double angle) {
 num_t f(num_t t, num_t y) {
     return 1 - y;
 }
+
 */
 
+double potentialEnergySystem(system_t system) {
+    return system.weight.mass * GRAVITY * distancePoint(system.pivot.position, system.weight.position) *
+           (1 - cos(system.pivot.angle));
+}
+
+double kineticEnergy(system_t system) {
+    point_t center;
+    center.x = 0.0;
+    center.y = 0.0;
+
+    return 0.5 * (system.trolley.mass * pow(distancePoint(system.trolley.velocityVector, center), 2.0) +
+                  system.weight.mass * pow(distancePoint(system.weight.velocityVector, center), 2.0));
+}
 
 num_t **build_euler(num_t (*f)(num_t, num_t), num_t t0, num_t tf, num_t y0, int n) {
 
