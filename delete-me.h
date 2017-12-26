@@ -119,7 +119,9 @@ point_t interpolatePoint(point_t point1, point_t point2, double f);
 
 point_t rectangleGravityCenter(point_t a, point_t b);
 
-void applyAngleSystem(system_t* system);
+void applyAngleSystem(system_t *system);
+
+system_t nextTimeSystem(system_t system);
 
 double vectorNorm(point_t v);
 

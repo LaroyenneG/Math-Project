@@ -205,7 +205,6 @@ void showSystemTime(system_t system) {
         exit(EXIT_FAILURE);
     }
 
-
     SDL_RenderClear(renderer);
 
 
@@ -261,5 +260,7 @@ void showSystemTime(system_t system) {
     printf("\tEnergie potentielle=%lf\n", system.potentialEnergy);
 
     SDL_Delay(100);
+
+    SDL_DestroyRenderer(renderer);
 }
 

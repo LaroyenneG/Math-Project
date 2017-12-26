@@ -136,6 +136,16 @@ void applyAngleSystem(system_t *system) {
     system->bar.gravityCenter.y = system->pivot.position.y + system->lengthBar * cos(system->pivot.angle);
 }
 
+
+system_t nextTimeSystem(system_t system) {
+
+    system_t result = system;
+
+
+    return result;
+}
+
+
 // <temps>  <position>  <angle>
 void printLineSystem(system_t system, double time) {
 
@@ -167,62 +177,6 @@ double kineticEnergySystem(system_t system) {
                   system.weight.mass * pow(distancePoint(system.weight.velocityVector, center), 2.0));
 }
 
-num_t **build_euler(num_t (*f)(num_t, num_t), num_t t0, num_t tf, num_t y0, int n) {
-
-    num_t **table = malloc(sizeof(num_t *) * 2);
-    if (table == NULL) {
-        perror("malloc()");
-        exit(EXIT_FAILURE);
-    }
-
-    num_t *y_table = malloc(sizeof(num_t) * n);
-    if (y_table == NULL) {
-        perror("malloc()");
-        exit(EXIT_FAILURE);
-    }
-
-    num_t *t_table = malloc(sizeof(num_t) * n);
-    if (t_table == NULL) {
-        perror("malloc()");
-        exit(EXIT_FAILURE);
-    }
-
-    num_t pas = (tf - t0) / n;
-    num_t y = y0;
-    num_t t = t0;
-
-    y_table[0] = y0;
-    t_table[0] = t0;
-
-    for (int i = 1; i < n; ++i) {
-        y += pas * f(t, y);
-        t += pas;
-        y_table[i] = y;
-        t_table[i] = t;
-    }
-
-    table[0] = y_table;
-    table[1] = t_table;
-
-    return table;
-}
-
-/*
- * Retourn la valeur approché
- */
-num_t euler(num_t (*f)(num_t, num_t), num_t t0, num_t tf, num_t y0, int app) {
-
-    num_t **table = build_euler(f, t0, tf, y0, app);
-
-    num_t s = table[0][app - 1];
-
-    free(table[0]);
-    free(table[1]);
-    free(table);
-
-    return s;
-}
-
 
 num_t rk4(num_t (*f)(num_t, num_t), num_t h, num_t x, num_t y) {
 
@@ -246,10 +200,13 @@ int main(int argc, char **argv) {
 
     system_t system = buildSystem(-70.0, 0.0);
 
-    showSystemTime(system);
-
-    sleep(100);
-
+    while (system.mechanicalEnergy >= 0.0) {
+        showSystemTime(system);
+        system = nextTimeSystem(system);
+        time += H;
+    }
 
     return 0;
 }
+
+
