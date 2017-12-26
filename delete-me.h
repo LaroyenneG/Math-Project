@@ -25,10 +25,10 @@
 #define PI 3.141592653589793
 
 #define BAR_TOTAL_LENGTH 1.0
-#define BAR_DIAMETER 0.001
+#define BAR_DIAMETER 0.01
 #define BAR_MASS 0.2
-#define FLYWEIGHT_HEIGHT 0.007
-#define OUTER_DIAMETER_FLYWEIGHT 0.006
+#define FLYWEIGHT_HEIGHT 0.07
+#define OUTER_DIAMETER_FLYWEIGHT 0.06
 #define DISTANCE_CENTER_FLYWEIGHT_PINTLE 0.95
 #define MASS_FLYWEIGHT 0.30
 #define MASS_CAR 1.20
@@ -97,10 +97,16 @@ typedef struct {
     double potentialEnergy;
     double kineticEnergy;
 
+    // incertain
+
+    double lengthPendulum;
+    double lengthBar;
+    double lengthWeight;
+
 } system_t;
 
 
-system_t buildSystem(double angle);
+system_t buildSystem(double angle, double p0);
 
 
 double potentialEnergySystem(system_t system);
@@ -112,6 +118,8 @@ point_t pendulumGravityCenterSystem(system_t system);
 point_t interpolatePoint(point_t point1, point_t point2, double f);
 
 point_t rectangleGravityCenter(point_t a, point_t b);
+
+void applyAngleSystem(system_t* system);
 
 double vectorNorm(point_t v);
 

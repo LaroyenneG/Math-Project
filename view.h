@@ -7,6 +7,13 @@
 
 #include "delete-me.h"
 
-void showSystem(system_t system);
+#define C_MULT 500.0
+#define WINDOWS_WIDTH 1920
+#define WINDOWS_HEIGHT 1000
+#define OFFSET_HEIGHT 50
+
+void showSystemZero(system_t system);
+
+void showSystemTime(system_t system);
 
 #endif //MATH_PROJECT_VIEW_H

@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <locale.h>
 #include <math.h>
+#include <zconf.h>
 
 #include "libmat.h"
 
@@ -25,7 +26,7 @@ point_t interpolatePoint(point_t point1, point_t point2, double f) {
 
 double distancePoint(point_t point1, point_t point2) {
 
-    return sqrt(pow(point1.x - point2.x, 2.0) + pow(point2.y - point2.y, 2.0));
+    return sqrt(pow(point1.x - point2.x, 2.0) + pow(point1.y - point2.y, 2.0));
 }
 
 double vectorNorm(point_t v) {
@@ -34,19 +35,23 @@ double vectorNorm(point_t v) {
 }
 
 // angle en degré !
-system_t buildSystem(double angle) {
+system_t buildSystem(double angle, double p0) {
 
     system_t system;
 
-    system.pivot.angle = angle * PI / 180;
-    system.pivot.velocityAngle = 0.0;
-
-    system.trolley.position.x = 0.0;
+    system.trolley.position.x = p0;
     system.trolley.position.y = 0.0;
     system.trolley.mass = MASS_CAR;
     system.trolley.friction = 0.0;
     system.trolley.velocityVector.x = 0.0;
     system.trolley.velocityVector.y = 0.0;
+
+
+    system.pivot.angle = angle * PI / 180;
+    system.pivot.velocityAngle = 0.0;
+    system.pivot.position.x = system.trolley.position.x;
+    system.pivot.position.y = system.trolley.position.y;
+
 
     system.weight.mass = MASS_FLYWEIGHT;
     system.weight.velocityVector.x = 0.0;
@@ -57,6 +62,7 @@ system_t buildSystem(double angle) {
     system.weight.b.y = system.pivot.position.y + (DISTANCE_CENTER_FLYWEIGHT_PINTLE + FLYWEIGHT_HEIGHT / 2.0);
     system.weight.gravityCenter = rectangleGravityCenter(system.weight.a, system.weight.b);
 
+
     system.bar.mass = BAR_MASS;
     system.bar.diameter = BAR_DIAMETER;
     system.bar.length = BAR_TOTAL_LENGTH;
@@ -66,9 +72,23 @@ system_t buildSystem(double angle) {
     system.bar.b.y = system.pivot.position.y + system.bar.length;
     system.bar.gravityCenter = rectangleGravityCenter(system.bar.a, system.bar.b);
 
+
     system.kineticEnergy = kineticEnergySystem(system);
     system.potentialEnergy = potentialEnergySystem(system);
-    system.mechanicalEnergy = system.mechanicalEnergy + system.kineticEnergy;
+    system.mechanicalEnergy = system.potentialEnergy + system.kineticEnergy;
+
+
+
+
+
+    // incertain
+
+    system.lengthBar = distancePoint(system.pivot.position, system.bar.gravityCenter);
+    system.lengthWeight = distancePoint(system.pivot.position, system.weight.gravityCenter);
+    system.lengthPendulum = distancePoint(system.pivot.position, system.pendulumGravityCenter);
+
+
+    applyAngleSystem(&system);
 
 
     system.pendulumGravityCenter = pendulumGravityCenterSystem(system);
@@ -83,8 +103,11 @@ point_t pendulumGravityCenterSystem(system_t system) {
 
     point_t g;
 
-    g.x = (system.bar.gravityCenter.x + system.weight.gravityCenter.x) / (system.bar.mass + system.weight.mass);
-    g.y = (system.bar.gravityCenter.y + system.weight.gravityCenter.y) / (system.bar.mass + system.weight.mass);
+    g.x = (system.bar.gravityCenter.x * system.bar.mass + system.weight.gravityCenter.x * system.weight.mass) /
+          (system.bar.mass + system.weight.mass);
+
+    g.y = (system.bar.gravityCenter.y * system.bar.mass + system.weight.gravityCenter.y * system.weight.mass) /
+          (system.bar.mass + system.weight.mass);
 
     return g;
 }
@@ -94,10 +117,23 @@ point_t rectangleGravityCenter(point_t a, point_t b) {
 
     point_t g;
 
-    g.x = (b.x - a.x) / 2;
-    g.y = (b.y - a.y) / 2;
+    g.x = (b.x + a.x) / 2.0;
+
+    g.y = (b.y + a.y) / 2.0;
 
     return g;
+}
+
+void applyAngleSystem(system_t *system) {
+
+
+    system->weight.gravityCenter.x = system->pivot.position.x + system->lengthWeight * sin(system->pivot.angle);
+
+    system->weight.gravityCenter.y = system->pivot.position.y + system->lengthWeight * cos(system->pivot.angle);
+
+
+    system->bar.gravityCenter.x=system->pivot.position.x+system->lengthBar*sin(system->pivot.angle);
+    system->bar.gravityCenter.y=system->pivot.position.y+system->lengthBar*cos(system->pivot.angle);
 }
 
 // <temps>  <position>  <angle>
@@ -201,11 +237,15 @@ num_t rk4(num_t (*f)(num_t, num_t), num_t h, num_t x, num_t y) {
 
 int main(int argc, char **argv) {
 
+    double time = 0.0;
+
+
     setlocale(LC_NUMERIC, "fr_FR.UTF-8");
 
-    system_t system = buildSystem(10.0);
+    system_t system = buildSystem(50.0, 0.0);
 
-    showSystem(system);
+    showSystemZero(system);
+
 
     return 0;
 }
