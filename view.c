@@ -114,8 +114,8 @@ void showSystemZero() {
     SDL_Point pointTrolley = convertPoint(system.trolley.position);
 
     rectTrolley.x = pointTrolley.x - 100;
-    rectTrolley.y = pointTrolley.y - 50;
-    rectTrolley.h = 50;
+    rectTrolley.y = pointTrolley.y - OFFSET_HEIGHT;
+    rectTrolley.h = OFFSET_HEIGHT;
     rectTrolley.w = 200;
 
     SDL_RenderFillRect(renderer, &rectTrolley);
@@ -168,11 +168,6 @@ void showSystemZero() {
 
     SDL_RenderPresent(renderer);
 
-    printf("\nInformations sur les energies :\n");
-    printf("Energie mécanique=%lf\n", system.mechanicalEnergy);
-    printf("Energie cinétique=%lf\n", system.kineticEnergy);
-    printf("Energie potentielle=%lf\n", system.potentialEnergy);
-
 
     SDL_Delay(50000);
     SDL_DestroyRenderer(renderer);
@@ -203,6 +198,67 @@ void showSystemTime(system_t system) {
 
     }
 
+
+    SDL_Renderer *renderer = SDL_CreateRenderer(pWindow, -1, SDL_RENDERER_ACCELERATED);
+    if (renderer == NULL) {
+        fprintf(stderr, "Erreur de création du render: %s\n", SDL_GetError());
+        exit(EXIT_FAILURE);
+    }
+
+
+    SDL_RenderClear(renderer);
+
+
+    SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+
+    SDL_RenderDrawLine(renderer, 0, OFFSET_HEIGHT, WINDOWS_WIDTH, OFFSET_HEIGHT);
+
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+
+    SDL_Rect rectTrolley;
+    SDL_Point pointTrolley = convertPoint(system.trolley.position);
+    rectTrolley.x = pointTrolley.x - 100;
+    rectTrolley.y = pointTrolley.y - OFFSET_HEIGHT;
+    rectTrolley.h = OFFSET_HEIGHT;
+    rectTrolley.w = 200;
+
+    SDL_RenderFillRect(renderer, &rectTrolley);
+
+
+    SDL_SetRenderDrawColor(renderer, 20, 120, 20, 255);
+    SDL_Point pointPivot = convertPoint(system.pivot.position);
+    SDL_RenderDrawPoint(renderer, pointPivot.x, pointPivot.y);
+    SDL_Circle(renderer, pointPivot.x, pointPivot.y, 2);
+
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+
+    point_t tmp = system.weight.gravityCenter;
+
+    double r = 1.0 / sqrt(pow(system.pivot.position.x - tmp.x, 2.0) + pow(system.pivot.position.y - tmp.y, 2.0));
+
+    tmp.x *= r;
+    tmp.y *= r;
+
+
+    SDL_Point l = convertPoint(tmp);
+
+    SDL_RenderDrawLine(renderer, pointPivot.x, pointPivot.y, l.x, l.y);
+
+
+    SDL_Point gWeight = convertPoint(system.weight.gravityCenter);
+    SDL_RenderDrawPoint(renderer, gWeight.x, gWeight.y);
+
+    SDL_Circle(renderer, gWeight.x, gWeight.y, 15);
+
+
+    SDL_RenderPresent(renderer);
+
+    printf("\nInformations sur les energies :\n");
+    printf("\tEnergie mécanique=%lf\n", system.mechanicalEnergy);
+    printf("\tEnergie cinétique=%lf\n", system.kineticEnergy);
+    printf("\tEnergie potentielle=%lf\n", system.potentialEnergy);
 
     SDL_Delay(100);
 }

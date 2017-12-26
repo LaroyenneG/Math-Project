@@ -132,8 +132,8 @@ void applyAngleSystem(system_t *system) {
     system->weight.gravityCenter.y = system->pivot.position.y + system->lengthWeight * cos(system->pivot.angle);
 
 
-    system->bar.gravityCenter.x=system->pivot.position.x+system->lengthBar*sin(system->pivot.angle);
-    system->bar.gravityCenter.y=system->pivot.position.y+system->lengthBar*cos(system->pivot.angle);
+    system->bar.gravityCenter.x = system->pivot.position.x + system->lengthBar * sin(system->pivot.angle);
+    system->bar.gravityCenter.y = system->pivot.position.y + system->lengthBar * cos(system->pivot.angle);
 }
 
 // <temps>  <position>  <angle>
@@ -242,8 +242,13 @@ int main(int argc, char **argv) {
 
     setlocale(LC_NUMERIC, "fr_FR.UTF-8");
 
+    // showSystemZero();
 
-    showSystemZero();
+    system_t system = buildSystem(-70.0, 0.0);
+
+    showSystemTime(system);
+
+    sleep(100);
 
 
     return 0;
