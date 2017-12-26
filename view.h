@@ -12,7 +12,7 @@
 #define WINDOWS_HEIGHT 1000
 #define OFFSET_HEIGHT 50
 
-void showSystemZero(system_t system);
+void showSystemZero();
 
 void showSystemTime(system_t system);
 

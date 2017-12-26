@@ -7,8 +7,6 @@
 #include "delete-me.h"
 
 
-
-
 static SDL_Window *pWindow = NULL;
 
 
@@ -71,39 +69,34 @@ void SDL_Circle(SDL_Renderer *renderer, int cx, int cy, int rayon) {
     SDL_Circle(renderer, cx, cy, rayon - 1);
 }
 
-void showSystemZero(system_t system) {
+void showSystemZero() {
+
+    system_t system = buildSystem(0.0, 0.0);
+
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        fprintf(stdout, "Échec de l'initialisation de la SDL (%s)\n", SDL_GetError());
+        exit(EXIT_FAILURE);
+    }
+
+
+    SDL_Window *pWindow = SDL_CreateWindow("Pendule avec chariot sans energie", SDL_WINDOWPOS_UNDEFINED,
+                                           SDL_WINDOWPOS_UNDEFINED,
+                                           WINDOWS_WIDTH,
+                                           WINDOWS_HEIGHT,
+                                           SDL_WINDOW_SHOWN);
 
 
     if (pWindow == NULL) {
-
-        if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-            fprintf(stdout, "Échec de l'initialisation de la SDL (%s)\n", SDL_GetError());
-            exit(EXIT_FAILURE);
-        }
-
-
-        pWindow = SDL_CreateWindow("Pendule avec chariot", SDL_WINDOWPOS_UNDEFINED,
-                                   SDL_WINDOWPOS_UNDEFINED,
-                                   WINDOWS_WIDTH,
-                                   WINDOWS_HEIGHT,
-                                   SDL_WINDOW_SHOWN);
-
-
-        if (pWindow == NULL) {
-            fprintf(stderr, "Erreur de création de la fenêtre: %s\n", SDL_GetError());
-            exit(EXIT_FAILURE);
-        }
-
+        fprintf(stderr, "Erreur de création de la fenêtre: %s\n", SDL_GetError());
+        exit(EXIT_FAILURE);
     }
 
-    // SDL_SetWindowFullscreen(pWindow, SDL_WINDOW_FULLSCREEN);
 
     SDL_Renderer *renderer = SDL_CreateRenderer(pWindow, -1, SDL_RENDERER_ACCELERATED);
     if (renderer == NULL) {
         fprintf(stderr, "Erreur de création du render: %s\n", SDL_GetError());
         exit(EXIT_FAILURE);
     }
-
 
 
     SDL_RenderClear(renderer);
@@ -175,7 +168,7 @@ void showSystemZero(system_t system) {
 
     SDL_RenderPresent(renderer);
 
-    printf("Informations energie :\n");
+    printf("\nInformations sur les energies :\n");
     printf("Energie mécanique=%lf\n", system.mechanicalEnergy);
     printf("Energie cinétique=%lf\n", system.kineticEnergy);
     printf("Energie potentielle=%lf\n", system.potentialEnergy);
@@ -184,7 +177,6 @@ void showSystemZero(system_t system) {
     SDL_Delay(50000);
     SDL_DestroyRenderer(renderer);
     SDL_Quit();
-    pWindow = NULL;
 }
 
 void showSystemTime(system_t system) {
@@ -210,8 +202,6 @@ void showSystemTime(system_t system) {
         }
 
     }
-
-
 
 
     SDL_Delay(100);

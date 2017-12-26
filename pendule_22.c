@@ -242,9 +242,8 @@ int main(int argc, char **argv) {
 
     setlocale(LC_NUMERIC, "fr_FR.UTF-8");
 
-    system_t system = buildSystem(50.0, 0.0);
 
-    showSystemZero(system);
+    showSystemZero();
 
 
     return 0;
