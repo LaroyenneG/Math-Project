@@ -10,7 +10,7 @@
 #include "libmat.h"
 
 #include "delete-me.h"
-
+#include "view.h"
 
 
 point_t interpolatePoint(point_t point1, point_t point2, double f) {
@@ -204,6 +204,8 @@ int main(int argc, char **argv) {
     setlocale(LC_NUMERIC, "fr_FR.UTF-8");
 
     system_t system = buildSystem(10.0);
+
+    showSystem(system);
 
     return 0;
 }
