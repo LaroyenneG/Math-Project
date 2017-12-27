@@ -278,10 +278,10 @@ void showSystemTime(system_t system) {
     SDL_RenderPresent(renderer);
 
 
-    printf("\nInformations sur les energies :\n");
-    printf("\tEnergie mécanique=%lf\n", system.mechanicalEnergy);
-    printf("\tEnergie cinétique=%lf\n", system.kineticEnergy);
-    printf("\tEnergie potentielle=%lf\n", system.potentialEnergy);
+    fprintf(stderr, "\nInformations sur les energies :\n");
+    fprintf(stderr, "\tEnergie mécanique=%lf\n", system.mechanicalEnergy);
+    fprintf(stderr, "\tEnergie cinétique=%lf\n", system.kineticEnergy);
+    fprintf(stderr, "\tEnergie potentielle=%lf\n", system.potentialEnergy);
 
 
     SDL_Delay(100);

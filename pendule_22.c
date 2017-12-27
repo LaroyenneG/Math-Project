@@ -318,7 +318,7 @@ void printLineSystem(system_t system, double time) {
     double position = system.trolley.position.x;
     double angle = system.pivot.angle;
 
-    printf("%lf\t%lf\t\t%lf\n", time, position, angle);
+    printf("%lf\t%lf\t%lf\n", time, position, angle);
 }
 
 
@@ -335,17 +335,18 @@ int main(int argc, char **argv) {
 
     setlocale(LC_NUMERIC, "fr_FR.UTF-8");
 
-    //showSystemZero();
+    showSystemZero();
 
     system_t system = buildSystem(-70.0, 0.0);
 
-    // showSystemTime(system);
+    system.trolley.friction = 0.5;
 
-    while (system.mechanicalEnergy > 0.0) {
+    showSystemTime(system);
 
-        fprintf(stderr, "%lf\t%lf\t%lf\n", system.mechanicalEnergy, system.potentialEnergy, system.kineticEnergy);
-        // showSystemTime(system);
-        // printLineSystem(system, time);
+    while (system.mechanicalEnergy > 0.0001) {
+
+        showSystemTime(system);
+        printLineSystem(system, time);
 
         system = nextTimeSystem(system);
         time += H;
