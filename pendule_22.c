@@ -335,8 +335,8 @@ int main(int argc, char **argv) {
 
     while (system.mechanicalEnergy > 0.0) {
 
-        //fprintf(stderr, "%lf\n", system.mechanicalEnergy);
-        showSystemTime(system);
+        fprintf(stderr, "%lf\t%lf\t%lf\n", system.mechanicalEnergy, system.potentialEnergy, system.kineticEnergy);
+        // showSystemTime(system);
         // printLineSystem(system, time);
         system = nextTimeSystem(system);
         time += H;
