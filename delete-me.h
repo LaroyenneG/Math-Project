@@ -116,13 +116,13 @@ double potentialEnergySystem(system_t system);
 
 double kineticEnergySystem(system_t system);
 
-point_t pendulumGravityCenterSystem(system_t system);
+void putPendulumGravityCenterSystem(system_t *system);
 
 point_t interpolatePoint(point_t point1, point_t point2, double f);
 
 point_t rectangleGravityCenter(point_t a, point_t b);
 
-void applyAngleSystem(system_t *system);
+void putAngleSystem(system_t *system);
 
 system_t nextTimeSystem(system_t system);
 
@@ -132,9 +132,13 @@ void printLineSystem(system_t system, double time);
 
 system_t rk4System(double h, system_t system);
 
-void computeEnergySystem(system_t *system);
+void putEnergySystem(system_t *system);
 
 void putPivotSystem(system_t *system);
+
+void putPendulumVelocityVectorSystem(system_t *system);
+
+void putInertiaCenterSystem(system_t *system);
 
 /****************************************************************************************************
  * end pendule_22.h
