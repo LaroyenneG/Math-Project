@@ -35,7 +35,7 @@
 #define LINEAR_FRICTION_CAR 0.001
 #define PINTLE_FRICTION 20.0
 
-#define H 0.03
+#define H 0.01
 
 
 typedef struct {
@@ -139,6 +139,9 @@ void putPivotSystem(system_t *system);
 void putPendulumVelocityVectorSystem(system_t *system);
 
 void putInertiaCenterSystem(system_t *system);
+
+point_t applyRotationFriction(double angle, double length, double speedRot, double speedTro, double friction);
+
 
 /****************************************************************************************************
  * end pendule_22.h
