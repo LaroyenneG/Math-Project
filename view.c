@@ -248,34 +248,31 @@ void showSystemTime(system_t system) {
     SDL_Point g0 = convertPoint(system.pendulumGravityCenter);
     SDL_RenderDrawPoint(renderer, g0.x, g0.y);
 
-    SDL_Circle(renderer, g0.x, g0.y, 10);
-
+    SDL_Circle(renderer, g0.x, g0.y, 5);
 
 
     SDL_SetRenderDrawColor(renderer, 90, 51, 0, 255);
     SDL_Point g1 = convertPoint(system.bar.gravityCenter);
     SDL_RenderDrawPoint(renderer, g1.x, g1.y);
 
-    SDL_Circle(renderer, g1.x, g1.y, 10);
-
+    SDL_Circle(renderer, g1.x, g1.y, 5);
 
 
     SDL_SetRenderDrawColor(renderer, 240, 240, 5, 255);
     SDL_Point g2 = convertPoint(system.weight.gravityCenter);
     SDL_RenderDrawPoint(renderer, g2.x, g2.y);
 
-    SDL_Circle(renderer, g2.x, g2.y, 10);
+    SDL_Circle(renderer, g2.x, g2.y, 5);
 
 
     SDL_SetRenderDrawColor(renderer, 10, 151, 40, 255);
     SDL_Point g3 = convertPoint(system.inertiaCenter);
     SDL_RenderDrawPoint(renderer, g3.x, g3.y);
 
-    SDL_Circle(renderer, g3.x, g3.y, 10);
+    SDL_Circle(renderer, g3.x, g3.y, 5);
 
 
-
-    SDL_RenderDrawLine(renderer, g3.x, 0, g3.x, WINDOWS_HEIGHT);
+    SDL_RenderDrawLine(renderer, g3.x, OFFSET_HEIGHT, g3.x, 200);
 
 
     SDL_RenderPresent(renderer);
@@ -286,7 +283,8 @@ void showSystemTime(system_t system) {
     printf("\tEnergie cinétique=%lf\n", system.kineticEnergy);
     printf("\tEnergie potentielle=%lf\n", system.potentialEnergy);
 
-    SDL_Delay(1);
+
+    SDL_Delay(100);
 
     SDL_DestroyRenderer(renderer);
 }

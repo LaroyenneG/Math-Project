@@ -218,7 +218,7 @@ point_t applyRotationFriction(double angle, double length, double speedRot, doub
 }
 
 
-double aang(double angle, double trolleySpeed, double rotationSpeed, system_t system) {
+double angleEquation(double angle, double trolleySpeed, double rotationSpeed, system_t system) {
 
     double x = cos(angle);
     double y = sin(angle);
@@ -228,22 +228,22 @@ double aang(double angle, double trolleySpeed, double rotationSpeed, system_t sy
     double length = system.lengthPendulum;
 
 
-    point_t vectRot = applyRotationFriction(angle, system.lengthPendulum, rotationSpeed, trolleySpeed, 0.0);
+    point_t vectorRot = applyRotationFriction(angle, system.lengthPendulum, rotationSpeed, trolleySpeed, 0.0);
 
     double a =
-            massPendulum * length * y * pow(rotationSpeed, 2.0) + x * y * (massPendulum * GRAVITY - vectRot.y) +
-            pow(y, 2.0) * vectRot.x +
+            massPendulum * length * y * pow(rotationSpeed, 2.0) + x * y * (massPendulum * GRAVITY - vectorRot.y) +
+            pow(y, 2.0) * vectorRot.x +
             applyLinearFriction(trolleySpeed, system.trolley.friction).x;
 
     double b = massTrolley + massPendulum - massPendulum * pow(x, 2.0);
 
-    return -GRAVITY / length * y - x / length * a / b + y / massPendulum / length * vectRot.y +
-           x / massPendulum / length * vectRot.x;
+    return -GRAVITY / length * y - x / length * a / b + y / massPendulum / length * vectorRot.y +
+           x / massPendulum / length * vectorRot.x;
 
 }
 
 
-double alin(double angle, double trolleySpeed, double rotationSpeed, system_t system) {
+double linearEquation(double angle, double trolleySpeed, double rotationSpeed, system_t system) {
 
     double x = cos(angle);
     double y = sin(angle);
@@ -252,12 +252,11 @@ double alin(double angle, double trolleySpeed, double rotationSpeed, system_t sy
     double massTrolley = system.trolley.mass;
     double length = system.lengthPendulum;
 
-    point_t vectRot = applyRotationFriction(angle, system.lengthPendulum, rotationSpeed, trolleySpeed, 0.0);
-
+    point_t vectorRot = applyRotationFriction(angle, system.lengthPendulum, rotationSpeed, trolleySpeed, 0.0);
 
     double a =
-            massPendulum * length * y * pow(rotationSpeed, 2.0) + x * y * (massPendulum * GRAVITY - vectRot.y) +
-            pow(y, 2.0) * vectRot.x +
+            massPendulum * length * y * pow(rotationSpeed, 2.0) + x * y * (massPendulum * GRAVITY - vectorRot.y) +
+            pow(y, 2.0) * vectorRot.x +
             applyLinearFriction(trolleySpeed, system.trolley.friction).x;
 
     double b = massTrolley + massPendulum - massPendulum * pow(x, 2.0);
@@ -275,21 +274,21 @@ system_t rk4System(double h, system_t system) {
     double rotationSpeed = system.pivot.rotationSpeed;
 
     double k1a = h * trolleySpeed;
-    double k1c = h * alin(angle, trolleySpeed, rotationSpeed, system);
+    double k1c = h * linearEquation(angle, trolleySpeed, rotationSpeed, system);
     double k1b = h * rotationSpeed;
-    double k1d = h * aang(angle, trolleySpeed, rotationSpeed, system);
+    double k1d = h * angleEquation(angle, trolleySpeed, rotationSpeed, system);
     double k2a = h * (trolleySpeed + k1c / 2);
-    double k2c = h * alin(angle + k1b / 2, trolleySpeed + k1c / 2, rotationSpeed + k1d / 2, system);
+    double k2c = h * linearEquation(angle + k1b / 2, trolleySpeed + k1c / 2, rotationSpeed + k1d / 2, system);
     double k2b = h * (rotationSpeed + k1d / 2);
-    double k2d = h * aang(angle + k1b / 2, trolleySpeed + k1c / 2, rotationSpeed + k1d / 2, system);
+    double k2d = h * angleEquation(angle + k1b / 2, trolleySpeed + k1c / 2, rotationSpeed + k1d / 2, system);
     double k3a = h * (trolleySpeed + k2c / 2);
-    double k3c = h * alin(angle + k2b / 2, trolleySpeed + k2c / 2, rotationSpeed + k2d / 2, system);
+    double k3c = h * linearEquation(angle + k2b / 2, trolleySpeed + k2c / 2, rotationSpeed + k2d / 2, system);
     double k3b = h * (rotationSpeed + k2d / 2);
-    double k3d = h * aang(angle + k2b / 2, trolleySpeed + k2c / 2, rotationSpeed + k2d / 2, system);
+    double k3d = h * angleEquation(angle + k2b / 2, trolleySpeed + k2c / 2, rotationSpeed + k2d / 2, system);
     double k4a = h * (trolleySpeed + k3c);
-    double k4c = h * alin(angle + k3b, trolleySpeed + k3c, rotationSpeed + k3d, system);
+    double k4c = h * linearEquation(angle + k3b, trolleySpeed + k3c, rotationSpeed + k3d, system);
     double k4b = h * (rotationSpeed + k3d);
-    double k4d = h * aang(angle + k3b, trolleySpeed + k3c, rotationSpeed + k3d, system);
+    double k4d = h * angleEquation(angle + k3b, trolleySpeed + k3c, rotationSpeed + k3d, system);
 
     double ka = (k1a + 2 * k2a + 2 * k3a + k4a) / 6.0;
     double kb = (k1b + 2 * k2b + 2 * k3b + k4b) / 6.0;
@@ -332,10 +331,11 @@ int main(int argc, char **argv) {
 
     system_t system = buildSystem(-70.0, 0.0);
 
-    showSystemTime(system);
+    // showSystemTime(system);
 
     while (system.mechanicalEnergy > 0.0) {
 
+        //fprintf(stderr, "%lf\n", system.mechanicalEnergy);
         showSystemTime(system);
         // printLineSystem(system, time);
         system = nextTimeSystem(system);
