@@ -233,15 +233,7 @@ void showSystemTime(system_t system) {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
 
-    point_t tmp = system.weight.gravityCenter;
-
-    double r = 1.0 / sqrt(pow(system.pivot.position.x - tmp.x, 2.0) + pow(system.pivot.position.y - tmp.y, 2.0));
-
-    tmp.x *= r;
-    tmp.y *= r;
-
-
-    SDL_Point l = convertPoint(tmp);
+    SDL_Point l = convertPoint(system.weight.gravityCenter);
 
     SDL_RenderDrawLine(renderer, pointPivot.x, pointPivot.y, l.x, l.y);
 
@@ -252,14 +244,49 @@ void showSystemTime(system_t system) {
     SDL_Circle(renderer, gWeight.x, gWeight.y, 15);
 
 
+    SDL_SetRenderDrawColor(renderer, 254, 51, 0, 255);
+    SDL_Point g0 = convertPoint(system.pendulumGravityCenter);
+    SDL_RenderDrawPoint(renderer, g0.x, g0.y);
+
+    SDL_Circle(renderer, g0.x, g0.y, 10);
+
+
+
+    SDL_SetRenderDrawColor(renderer, 90, 51, 0, 255);
+    SDL_Point g1 = convertPoint(system.bar.gravityCenter);
+    SDL_RenderDrawPoint(renderer, g1.x, g1.y);
+
+    SDL_Circle(renderer, g1.x, g1.y, 10);
+
+
+
+    SDL_SetRenderDrawColor(renderer, 240, 240, 5, 255);
+    SDL_Point g2 = convertPoint(system.weight.gravityCenter);
+    SDL_RenderDrawPoint(renderer, g2.x, g2.y);
+
+    SDL_Circle(renderer, g2.x, g2.y, 10);
+
+
+    SDL_SetRenderDrawColor(renderer, 10, 151, 40, 255);
+    SDL_Point g3 = convertPoint(system.inertiaCenter);
+    SDL_RenderDrawPoint(renderer, g3.x, g3.y);
+
+    SDL_Circle(renderer, g3.x, g3.y, 10);
+
+
+
+    SDL_RenderDrawLine(renderer, g3.x, 0, g3.x, WINDOWS_HEIGHT);
+
+
     SDL_RenderPresent(renderer);
+
 
     printf("\nInformations sur les energies :\n");
     printf("\tEnergie mécanique=%lf\n", system.mechanicalEnergy);
     printf("\tEnergie cinétique=%lf\n", system.kineticEnergy);
     printf("\tEnergie potentielle=%lf\n", system.potentialEnergy);
 
-    SDL_Delay(100);
+    SDL_Delay(1);
 
     SDL_DestroyRenderer(renderer);
 }

@@ -134,7 +134,7 @@ system_t rk4System(double h, system_t system);
 
 void putEnergySystem(system_t *system);
 
-void putPivotSystem(system_t *system);
+void putPivotPositionSystem(system_t *system);
 
 void putPendulumVelocityVectorSystem(system_t *system);
 

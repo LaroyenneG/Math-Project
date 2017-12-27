@@ -12,7 +12,6 @@
 #include "delete-me.h"
 #include "view.h"
 
-static point_t origin = {0.0, 0.0};
 
 point_t interpolatePoint(point_t point1, point_t point2, double f) {
 
@@ -49,7 +48,8 @@ system_t buildSystem(double angle, double p0) {
 
     system.pivot.angle = angle * PI / 180;
     system.pivot.rotationSpeed = 0.0;
-    putPivotSystem(&system);
+    system.pivot.friction = 0.0;
+    putPivotPositionSystem(&system);
 
 
     system.weight.mass = MASS_FLYWEIGHT;
@@ -73,14 +73,15 @@ system_t buildSystem(double angle, double p0) {
 
 
     putPendulumGravityCenterSystem(&system);
-    putInertiaCenterSystem(&system);
 
     system.lengthBar = distancePoint(system.pivot.position, system.bar.gravityCenter);
     system.lengthWeight = distancePoint(system.pivot.position, system.weight.gravityCenter);
     system.lengthPendulum = distancePoint(system.pivot.position, system.pendulumGravityCenter);
 
-    putPendulumVelocityVectorSystem(&system);
     putAngleSystem(&system);
+    putPendulumGravityCenterSystem(&system);
+    putInertiaCenterSystem(&system);
+    putPendulumVelocityVectorSystem(&system);
     putEnergySystem(&system);
 
     return system;
@@ -138,11 +139,12 @@ system_t nextTimeSystem(system_t system) {
 
     system_t result = rk4System(H, system);
 
-    putPivotSystem(&result);
+    putPivotPositionSystem(&result);
     putAngleSystem(&result);
-    putPendulumGravityCenterSystem(&system);
+    putPendulumGravityCenterSystem(&result);
+    putInertiaCenterSystem(&result);
+    putPendulumVelocityVectorSystem(&result);
     putEnergySystem(&result);
-    putPendulumVelocityVectorSystem(&system);
 
     return result;
 }
@@ -152,12 +154,13 @@ void putPendulumVelocityVectorSystem(system_t *system) {
 
     system->pendulumVelocityVector.x = system->trolley.velocityVector.x +
                                        system->lengthPendulum * system->pivot.rotationSpeed * cos(system->pivot.angle);
+
     system->pendulumVelocityVector.y = system->trolley.velocityVector.y +
                                        system->lengthPendulum * system->pivot.rotationSpeed * sin(system->pivot.angle);
 }
 
 
-void putPivotSystem(system_t *system) {
+void putPivotPositionSystem(system_t *system) {
 
     system->pivot.position.x = system->trolley.position.x;
     system->pivot.position.y = system->trolley.position.y;
@@ -172,8 +175,8 @@ double potentialEnergySystem(system_t system) {
 
 double kineticEnergySystem(system_t system) {
 
-    return system.trolley.mass * pow(distancePoint(system.trolley.velocityVector, origin), 2.0) / 2.0 +
-           (system.weight.mass + system.bar.mass) * pow(distancePoint(system.pendulumVelocityVector, origin), 2.0) /
+    return system.trolley.mass * pow(vectorNorm(system.trolley.velocityVector), 2.0) / 2.0 +
+           (system.weight.mass + system.bar.mass) * pow(vectorNorm(system.pendulumVelocityVector), 2.0) /
            2.0;
 }
 
@@ -327,9 +330,9 @@ int main(int argc, char **argv) {
 
     //showSystemZero();
 
-    system_t system = buildSystem(70.0, 0.0);
+    system_t system = buildSystem(-70.0, 0.0);
 
-    //showSystemTime(system);
+    showSystemTime(system);
 
     while (system.mechanicalEnergy > 0.0) {
 
