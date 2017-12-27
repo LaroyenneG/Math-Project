@@ -30,7 +30,7 @@ double distancePoint(point_t point1, point_t point2) {
 
 double vectorNorm(point_t v) {
 
-    return sqrt(pow(v.x, 2.0) + pow(v.x, 2.0));
+    return sqrt(pow(v.x, 2.0) + pow(v.y, 2.0));
 }
 
 // angle en degré !
@@ -168,12 +168,20 @@ void putPivotPositionSystem(system_t *system) {
 
 
 double potentialEnergySystem(system_t system) {
+
+    //  masseMasselotte * GRAVITY * longueur * (1 - Math.cos(angle));
+
     return (system.weight.mass + system.bar.mass) * GRAVITY * system.lengthPendulum *
            (1.0 - cos(system.pivot.angle));
 }
 
 
 double kineticEnergySystem(system_t system) {
+
+    /*
+     * masseChariot * Math.pow(vecteurChariot.distance(new Point2D.Double(0, 0)), 2.0) / 2.0 +
+     * masseMasselotte * Math.pow(vecteurMasselotte.distance(new Point2D.Double(0, 0)), 2.0) / 2.0;
+     */
 
     return system.trolley.mass * pow(vectorNorm(system.trolley.velocityVector), 2.0) / 2.0 +
            (system.weight.mass + system.bar.mass) * pow(vectorNorm(system.pendulumVelocityVector), 2.0) /
@@ -338,6 +346,7 @@ int main(int argc, char **argv) {
         fprintf(stderr, "%lf\t%lf\t%lf\n", system.mechanicalEnergy, system.potentialEnergy, system.kineticEnergy);
         // showSystemTime(system);
         // printLineSystem(system, time);
+
         system = nextTimeSystem(system);
         time += H;
     }
