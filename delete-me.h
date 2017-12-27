@@ -69,7 +69,7 @@ typedef struct {
 
     point_t position;
     double angle;
-    double velocityAngle;
+    double rotationSpeed;
     double friction;
 
 } pivot_t;
@@ -92,7 +92,10 @@ typedef struct {
     weight_t weight;
     bar_t bar;
     point_t inertiaCenter;
+
     point_t pendulumGravityCenter;
+    point_t pendulumVelocityVector;
+
     double mechanicalEnergy;
     double potentialEnergy;
     double kineticEnergy;
@@ -127,10 +130,11 @@ double vectorNorm(point_t v);
 
 void printLineSystem(system_t system, double time);
 
+system_t rk4System(double h, system_t system);
 
-num_t rk4(num_t (*f)(num_t, num_t), num_t h, num_t x, num_t y);
+void computeEnergySystem(system_t *system);
 
-num_t euler(num_t (*f)(num_t, num_t), num_t t0, num_t tf, num_t y0, int app);
+void putPivotSystem(system_t *system);
 
 /****************************************************************************************************
  * end pendule_22.h

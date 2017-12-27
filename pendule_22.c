@@ -13,6 +13,7 @@
 #include "delete-me.h"
 #include "view.h"
 
+static point_t origin = {0.0, 0.0};
 
 point_t interpolatePoint(point_t point1, point_t point2, double f) {
 
@@ -48,9 +49,8 @@ system_t buildSystem(double angle, double p0) {
 
 
     system.pivot.angle = angle * PI / 180;
-    system.pivot.velocityAngle = 0.0;
-    system.pivot.position.x = system.trolley.position.x;
-    system.pivot.position.y = system.trolley.position.y;
+    system.pivot.rotationSpeed = 0.0;
+    putPivotSystem(&system);
 
 
     system.weight.mass = MASS_FLYWEIGHT;
@@ -73,31 +73,40 @@ system_t buildSystem(double angle, double p0) {
     system.bar.gravityCenter = rectangleGravityCenter(system.bar.a, system.bar.b);
 
 
-    system.kineticEnergy = kineticEnergySystem(system);
-    system.potentialEnergy = potentialEnergySystem(system);
-    system.mechanicalEnergy = system.potentialEnergy + system.kineticEnergy;
-
-
-
-
-
-    // incertain
+    system.pendulumGravityCenter = pendulumGravityCenterSystem(system);
+    system.inertiaCenter = interpolatePoint(system.trolley.position, system.weight.gravityCenter,
+                                            system.trolley.mass / (system.trolley.mass + system.weight.mass));
 
     system.lengthBar = distancePoint(system.pivot.position, system.bar.gravityCenter);
     system.lengthWeight = distancePoint(system.pivot.position, system.weight.gravityCenter);
     system.lengthPendulum = distancePoint(system.pivot.position, system.pendulumGravityCenter);
 
 
+
+    system.pendulumVelocityVector.x = system.trolley.velocityVector.x +
+                                      system.lengthPendulum * system.pivot.rotationSpeed * cos(system.pivot.angle);
+    system.pendulumVelocityVector.y = system.trolley.velocityVector.y +
+                                      system.lengthPendulum * system.pivot.rotationSpeed * sin(system.pivot.angle);
+
+
+
+
+
     applyAngleSystem(&system);
 
 
-    system.pendulumGravityCenter = pendulumGravityCenterSystem(system);
-
-    system.inertiaCenter = interpolatePoint(system.trolley.position, system.weight.gravityCenter,
-                                            system.trolley.mass / (system.trolley.mass + system.weight.mass));
+    computeEnergySystem(&system);
 
     return system;
 }
+
+
+void computeEnergySystem(system_t *system) {
+    system->kineticEnergy = kineticEnergySystem(*system);
+    system->potentialEnergy = potentialEnergySystem(*system);
+    system->mechanicalEnergy = system->potentialEnergy + system->kineticEnergy;
+}
+
 
 point_t pendulumGravityCenterSystem(system_t system) {
 
@@ -118,7 +127,6 @@ point_t rectangleGravityCenter(point_t a, point_t b) {
     point_t g;
 
     g.x = (b.x + a.x) / 2.0;
-
     g.y = (b.y + a.y) / 2.0;
 
     return g;
@@ -126,11 +134,8 @@ point_t rectangleGravityCenter(point_t a, point_t b) {
 
 void applyAngleSystem(system_t *system) {
 
-
     system->weight.gravityCenter.x = system->pivot.position.x + system->lengthWeight * sin(system->pivot.angle);
-
     system->weight.gravityCenter.y = system->pivot.position.y + system->lengthWeight * cos(system->pivot.angle);
-
 
     system->bar.gravityCenter.x = system->pivot.position.x + system->lengthBar * sin(system->pivot.angle);
     system->bar.gravityCenter.y = system->pivot.position.y + system->lengthBar * cos(system->pivot.angle);
@@ -139,10 +144,21 @@ void applyAngleSystem(system_t *system) {
 
 system_t nextTimeSystem(system_t system) {
 
-    system_t result = system;
+    system_t result = rk4System(H, system);
+    putPivotSystem(&result);
 
+    applyAngleSystem(&result);
+
+    computeEnergySystem(&result);
 
     return result;
+}
+
+
+void putPivotSystem(system_t *system) {
+
+    system->pivot.position.x = system->trolley.position.x;
+    system->pivot.position.y = system->trolley.position.y;
 }
 
 
@@ -156,36 +172,109 @@ void printLineSystem(system_t system, double time) {
 }
 
 
-/*
-num_t f(num_t t, num_t y) {
-    return 1 - y;
-}
-
-*/
-
 double potentialEnergySystem(system_t system) {
-    return system.weight.mass * GRAVITY * distancePoint(system.pivot.position, system.weight.gravityCenter) *
-           (1 - cos(system.pivot.angle));
+    return (system.weight.mass + system.bar.mass) * GRAVITY * system.lengthPendulum *
+           (1.0 - cos(system.pivot.angle));
 }
 
 double kineticEnergySystem(system_t system) {
-    point_t center;
-    center.x = 0.0;
-    center.y = 0.0;
 
-    return 0.5 * (system.trolley.mass * pow(distancePoint(system.trolley.velocityVector, center), 2.0) +
-                  system.weight.mass * pow(distancePoint(system.weight.velocityVector, center), 2.0));
+    return 0.5 * (system.trolley.mass * pow(distancePoint(system.pendulumVelocityVector, origin), 2.0) +
+                  0.5 * (system.weight.mass + system.bar.mass) *
+                  pow(distancePoint(system.pendulumVelocityVector, origin), 2.0));
 }
 
 
-num_t rk4(num_t (*f)(num_t, num_t), num_t h, num_t x, num_t y) {
+double applyLinearFriction(double speed, double friction) {
 
-    num_t k1 = h * f(x, y);
-    num_t k2 = h * f(x + h / 2, y + k1 / 2);
-    num_t k3 = h * f(x + h / 2, y + k2 / 2);
-    num_t k4 = h * f(x + h, y + k3);
+    return speed * (-friction * speed);
+}
 
-    return y + (k1 + 2 * k2 + 2 * k3 + k4) / 6;
+
+double aang(double angle, double trolleySpeed, double rotationSpeed, system_t system) {
+
+    double x = cos(angle);
+    double y = sin(angle);
+
+    double massPendulum = system.bar.mass + system.weight.mass;
+    double massTrolley = system.trolley.mass;
+    double length = system.lengthPendulum;
+
+    point_t vectorPendulum;
+    vectorPendulum.x = trolleySpeed + length * rotationSpeed * cos(angle);
+    vectorPendulum.y = length * rotationSpeed * sin(angle);
+
+
+    double a =
+            massPendulum * length * y * pow(rotationSpeed, 2.0) + x * y * (massPendulum * GRAVITY - vectorPendulum.y) +
+            pow(y, 2.0) * vectorPendulum.x +
+            applyLinearFriction(trolleySpeed, system.trolley.friction);
+    double b = massTrolley + massPendulum - massPendulum * pow(x, 2.0);
+
+    return -GRAVITY / length * y - x / length * a / b + y / massPendulum / length * vectorPendulum.y +
+           x / massPendulum / length * vectorPendulum.x;
+
+}
+
+
+double alin(double angle, double trolleySpeed, double rotationSpeed, system_t system) {
+
+    double x = cos(angle);
+    double y = sin(angle);
+
+    double massPendulum = system.bar.mass + system.weight.mass;
+    double massTrolley = system.trolley.mass;
+    double length = system.lengthPendulum;
+
+    point_t vectorPendulum;
+    vectorPendulum.x = trolleySpeed + length * rotationSpeed * cos(angle);
+    vectorPendulum.y = length * rotationSpeed * sin(angle);
+
+    double a =
+            massPendulum * length * y * pow(rotationSpeed, 2.0) + x * y * (massPendulum * GRAVITY - vectorPendulum.y) +
+            pow(y, 2.0) * vectorPendulum.x +
+            applyLinearFriction(trolleySpeed, system.trolley.friction);
+    double b = massTrolley + massPendulum - massPendulum * pow(x, 2.0);
+
+    return a / b;
+}
+
+system_t rk4System(double h, system_t system) {
+
+    system_t systemH = system;
+
+    double trolleySpeed = system.trolley.velocityVector.x;
+    double angle = system.pivot.angle;
+    double rotationSpeed = system.pivot.rotationSpeed;
+
+    double k1a = h * trolleySpeed;
+    double k1c = h * alin(angle, trolleySpeed, rotationSpeed, system);
+    double k1b = h * rotationSpeed;
+    double k1d = h * aang(angle, trolleySpeed, rotationSpeed, system);
+    double k2a = h * (trolleySpeed + k1c / 2);
+    double k2c = h * alin(angle + k1b / 2, trolleySpeed + k1c / 2, rotationSpeed + k1d / 2, system);
+    double k2b = h * (rotationSpeed + k1d / 2);
+    double k2d = h * aang(angle + k1b / 2, trolleySpeed + k1c / 2, rotationSpeed + k1d / 2, system);
+    double k3a = h * (trolleySpeed + k2c / 2);
+    double k3c = h * alin(angle + k2b / 2, trolleySpeed + k2c / 2, rotationSpeed + k2d / 2, system);
+    double k3b = h * (rotationSpeed + k2d / 2);
+    double k3d = h * aang(angle + k2b / 2, trolleySpeed + k2c / 2, rotationSpeed + k2d / 2, system);
+    double k4a = h * (trolleySpeed + k3c);
+    double k4c = h * alin(angle + k3b, trolleySpeed + k3c, rotationSpeed + k3d, system);
+    double k4b = h * (rotationSpeed + k3d);
+    double k4d = h * aang(angle + k3b, trolleySpeed + k3c, rotationSpeed + k3d, system);
+
+    double ka = (k1a + 2 * k2a + 2 * k3a + k4a) / 6;
+    double kb = (k1b + 2 * k2b + 2 * k3b + k4b) / 6;
+    double kc = (k1c + 2 * k2c + 2 * k3c + k4c) / 6;
+    double kd = (k1d + 2 * k2d + 2 * k3d + k4d) / 6;
+
+    systemH.trolley.position.x += ka;
+    systemH.pivot.angle += kb;
+    systemH.trolley.velocityVector.x += kc;
+    systemH.pivot.rotationSpeed += kd;
+
+    return systemH;
 }
 
 
@@ -198,13 +287,15 @@ int main(int argc, char **argv) {
 
     // showSystemZero();
 
-    system_t system = buildSystem(-70.0, 0.0);
+    system_t system = buildSystem(70.0, 0.0);
+
 
     while (system.mechanicalEnergy >= 0.0) {
         showSystemTime(system);
         system = nextTimeSystem(system);
         time += H;
     }
+
 
     return 0;
 }
