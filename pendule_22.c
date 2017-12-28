@@ -339,7 +339,7 @@ int main(int argc, char **argv) {
 
     system_t system = buildSystem(-70.0, 0.0);
 
-    system.trolley.friction = 0.5;
+    system.trolley.friction = 0.0;
 
     showSystemTime(system);
 
