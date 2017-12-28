@@ -96,6 +96,9 @@ void putEnergySystem(system_t *system) {
 }
 
 
+/*
+ *
+ */
 void putPendulumGravityCenterSystem(system_t *system) {
 
     system->pendulumGravityCenter.x =
@@ -107,6 +110,10 @@ void putPendulumGravityCenterSystem(system_t *system) {
             (system->bar.mass + system->weight.mass);
 }
 
+
+/*
+ * Writes the center of gravity of the system into the structure.
+ */
 void putInertiaCenterSystem(system_t *system) {
 
     system->inertiaCenter = interpolatePoint(system->trolley.position, system->pendulumGravityCenter,
@@ -115,6 +122,9 @@ void putInertiaCenterSystem(system_t *system) {
 }
 
 
+/*
+ * Returns the center of gravity of a rectangle.
+ */
 point_t rectangleGravityCenter(point_t a, point_t b) {
 
     point_t g;
@@ -125,6 +135,10 @@ point_t rectangleGravityCenter(point_t a, point_t b) {
     return g;
 }
 
+
+/*
+ * Places the centers of gravity according to the angle of the system.
+ */
 void putAngleSystem(system_t *system) {
 
     system->weight.gravityCenter.x = system->pivot.position.x + system->lengthWeight * sin(system->pivot.angle);
@@ -135,6 +149,9 @@ void putAngleSystem(system_t *system) {
 }
 
 
+/*
+ * Returns the system at time t + h.
+ */
 system_t nextTimeSystem(system_t system) {
 
     system_t result = rk4System(H, system);
@@ -150,6 +167,9 @@ system_t nextTimeSystem(system_t system) {
 }
 
 
+/*
+ * Writes the value of the pendulum speed vector in the structure.
+ */
 void putPendulumVelocityVectorSystem(system_t *system) {
 
     system->pendulumVelocityVector.x = system->trolley.velocityVector.x +
@@ -160,6 +180,9 @@ void putPendulumVelocityVectorSystem(system_t *system) {
 }
 
 
+/*
+ * Writes the location of the pivot in the structure.
+ */
 void putPivotPositionSystem(system_t *system) {
 
     system->pivot.position.x = system->trolley.position.x;
@@ -167,21 +190,20 @@ void putPivotPositionSystem(system_t *system) {
 }
 
 
+/*
+ * Returns the potential energy of the system.
+ */
 double potentialEnergySystem(system_t system) {
-
-    //  masseMasselotte * GRAVITY * longueur * (1 - Math.cos(angle));
 
     return (system.weight.mass + system.bar.mass) * GRAVITY * system.lengthPendulum *
            (1.0 - cos(system.pivot.angle));
 }
 
 
+/*
+ * Returns the kinetic energy of the system.
+ */
 double kineticEnergySystem(system_t system) {
-
-    /*
-     * masseChariot * Math.pow(vecteurChariot.distance(new Point2D.Double(0, 0)), 2.0) / 2.0 +
-     * masseMasselotte * Math.pow(vecteurMasselotte.distance(new Point2D.Double(0, 0)), 2.0) / 2.0;
-     */
 
     return system.trolley.mass * pow(vectorNorm(system.trolley.velocityVector), 2.0) / 2.0 +
            (system.weight.mass + system.bar.mass) * pow(vectorNorm(system.pendulumVelocityVector), 2.0) /
@@ -189,6 +211,9 @@ double kineticEnergySystem(system_t system) {
 }
 
 
+/*
+ * Returns the values of the linear friction forces.
+ */
 point_t applyLinearFriction(double speed, double friction) {
 
     point_t vector;
@@ -207,6 +232,9 @@ point_t applyLinearFriction(double speed, double friction) {
 }
 
 
+/*
+ * Returns the values of the rotation friction forces.
+ */
 point_t applyRotationFriction(double angle, double length, double speedRot, double speedTro, double friction) {
 
 
@@ -273,6 +301,11 @@ double linearEquation(double angle, double trolleySpeed, double rotationSpeed, s
 }
 
 
+/*
+ * Solve the differential equations at time t + h with the rk4 algorithm.
+ * And return the system to the corresponding time.
+ * Only the variables of the equations are modified (position, angle, speed).
+ */
 system_t rk4System(double h, system_t system) {
 
     system_t systemH = system;
