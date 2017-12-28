@@ -12,7 +12,9 @@
 #include "delete-me.h"
 #include "view.h"
 
-
+/*
+ * Returns the interpolate values.
+ */
 point_t interpolatePoint(point_t point1, point_t point2, double f) {
 
     point_t result;
@@ -23,17 +25,43 @@ point_t interpolatePoint(point_t point1, point_t point2, double f) {
     return result;
 }
 
+
+/*
+ * Returns the distance between two points.
+ */
 double distancePoint(point_t point1, point_t point2) {
 
     return sqrt(pow(point1.x - point2.x, 2.0) + pow(point1.y - point2.y, 2.0));
 }
 
+
+/*
+ * Returns the norm of vector v.
+ */
 double vectorNorm(point_t v) {
 
     return sqrt(pow(v.x, 2.0) + pow(v.y, 2.0));
 }
 
-// angle en degré !
+
+/*
+ * Returns the center of gravity of a rectangle.
+ */
+point_t rectangleGravityCenter(point_t a, point_t b) {
+
+    point_t g;
+
+    g.x = (b.x + a.x) / 2.0;
+    g.y = (b.y + a.y) / 2.0;
+
+    return g;
+}
+
+
+
+/*
+ * Returns a system at time t0.
+ */
 system_t buildSystem(double angle, double p0) {
 
     system_t system;
@@ -88,6 +116,9 @@ system_t buildSystem(double angle, double p0) {
 }
 
 
+/*
+ * Writes all energy values into the system.
+ */
 void putEnergySystem(system_t *system) {
 
     system->kineticEnergy = kineticEnergySystem(*system);
@@ -97,7 +128,7 @@ void putEnergySystem(system_t *system) {
 
 
 /*
- *
+ * Writes the gravity center of pendulum into the system structure.
  */
 void putPendulumGravityCenterSystem(system_t *system) {
 
@@ -119,20 +150,6 @@ void putInertiaCenterSystem(system_t *system) {
     system->inertiaCenter = interpolatePoint(system->trolley.position, system->pendulumGravityCenter,
                                              system->trolley.mass /
                                              (system->trolley.mass + system->weight.mass + system->bar.mass));
-}
-
-
-/*
- * Returns the center of gravity of a rectangle.
- */
-point_t rectangleGravityCenter(point_t a, point_t b) {
-
-    point_t g;
-
-    g.x = (b.x + a.x) / 2.0;
-    g.y = (b.y + a.y) / 2.0;
-
-    return g;
 }
 
 
@@ -254,6 +271,9 @@ point_t applyRotationFriction(double angle, double length, double speedRot, doub
 }
 
 
+/*
+ * Differential equation for pivot evolution.
+ */
 double angleEquation(double angle, double trolleySpeed, double rotationSpeed, system_t system) {
 
     double x = cos(angle);
@@ -279,6 +299,9 @@ double angleEquation(double angle, double trolleySpeed, double rotationSpeed, sy
 }
 
 
+/*
+ * Differential equation for moving the trolley.
+ */
 double linearEquation(double angle, double trolleySpeed, double rotationSpeed, system_t system) {
 
     double x = cos(angle);
@@ -371,8 +394,6 @@ int main(int argc, char **argv) {
     showSystemZero();
 
     system_t system = buildSystem(-70.0, 0.0);
-
-    system.trolley.friction = 0.0;
 
     showSystemTime(system);
 
