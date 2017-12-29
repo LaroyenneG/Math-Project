@@ -35,7 +35,7 @@
 #define LINEAR_FRICTION_CAR 0.001
 #define PINTLE_FRICTION 20.0
 
-#define H 0.03
+#define H 0.01
 
 
 typedef struct {
