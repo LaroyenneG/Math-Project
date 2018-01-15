@@ -402,6 +402,8 @@ int main(int argc, char **argv) {
         showSystemTime(system);
         printLineSystem(system, time);
 
+        showSystemTime(system);
+
         system = nextTimeSystem(system);
         time += H;
     }
