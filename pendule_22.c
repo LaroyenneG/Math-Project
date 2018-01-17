@@ -299,6 +299,20 @@ double angleEquation(double angle, double trolleySpeed, double rotationSpeed, sy
 
 
 /*
+ * Puts the system in a state without energy.
+ */
+void stopSystem(system_t *system) {
+
+    system->pivot.angle = 0.0;
+    system->pivot.rotationSpeed = 0.0;
+    system->trolley.velocityVector.x = 0.0;
+    system->trolley.velocityVector.y = 0.0;
+
+    *system = nextTimeSystem(*system);
+}
+
+
+/*
  * Differential equation for moving the trolley.
  */
 double linearEquation(double angle, double trolleySpeed, double rotationSpeed, system_t system) {
@@ -392,20 +406,26 @@ int main(int argc, char **argv) {
 
     showSystemZero();
 
-    system_t system = buildSystem(-70.0, 0.0);
+    system_t system = buildSystem(5.0, 0.0);
 
-    showSystemTime(system);
+    while (system.mechanicalEnergy > 0.000001) {
 
-    while (system.mechanicalEnergy > 0.0001) {
-
-        showSystemTime(system);
         printLineSystem(system, time);
 
         showSystemTime(system);
 
+        fprintf(stderr, "%lf\n", system.mechanicalEnergy);
+
         system = nextTimeSystem(system);
         time += H;
     }
+
+
+    stopSystem(&system);
+
+    printLineSystem(system, time);
+
+    showSystemTime(system);
 
 
     return 0;

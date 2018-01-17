@@ -264,7 +264,7 @@ void showSystemTime(system_t system) {
      * Draw energy.
      */
 
-    double mult = 100.0;
+    double mult = 200.0;
     int maxBarSize = WINDOWS_HEIGHT / 3;
     int wBar = 10;
 
@@ -303,9 +303,9 @@ void showSystemTime(system_t system) {
 
 
     fprintf(stderr, "\nInformations sur les energies :\n");
-    fprintf(stderr, "\tEnergie mécanique=%lf\n", system.mechanicalEnergy);
-    fprintf(stderr, "\tEnergie cinétique=%lf\n", system.kineticEnergy);
-    fprintf(stderr, "\tEnergie potentielle=%lf\n", system.potentialEnergy);
+    fprintf(stderr, "\tEnergie mécanique = %lf\n", system.mechanicalEnergy);
+    fprintf(stderr, "\tEnergie cinétique = %lf\n", system.kineticEnergy);
+    fprintf(stderr, "\tEnergie potentielle = %lf\n", system.potentialEnergy);
 
 
     SDL_Delay(20);

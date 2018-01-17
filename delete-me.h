@@ -144,6 +144,8 @@ point_t applyRotationFriction(double angle, double length, double speedRot, doub
 
 point_t applyLinearFriction(double speed, double friction);
 
+void stopSystem(system_t *system);
+
 double distancePoint(point_t point1, point_t point2);
 
 
