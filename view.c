@@ -261,6 +261,42 @@ void showSystemTime(system_t system) {
     SDL_RenderDrawLine(renderer, g3.x, OFFSET_HEIGHT, g3.x, 200);
     */
 
+    /*
+     * Draw energy.
+     */
+
+    double mult = 100.0;
+
+    SDL_SetRenderDrawColor(renderer, 10, 151, 40, 255);
+
+    SDL_Rect mechanicalEnergy;
+    mechanicalEnergy.x = WINDOWS_WIDTH - 100;
+    mechanicalEnergy.y = WINDOWS_HEIGHT - 300;
+    mechanicalEnergy.h = (int) (system.mechanicalEnergy * mult);
+    mechanicalEnergy.w = 10;
+
+    SDL_RenderFillRect(renderer, &mechanicalEnergy);
+
+
+    SDL_SetRenderDrawColor(renderer, 254, 51, 0, 255);
+    SDL_Rect kineticEnergy;
+    kineticEnergy.x = WINDOWS_WIDTH - 85;
+    kineticEnergy.y = WINDOWS_HEIGHT - 300;
+    kineticEnergy.h = (int) (system.kineticEnergy * mult);
+    kineticEnergy.w = 10;
+
+    SDL_RenderFillRect(renderer, &kineticEnergy);
+
+    SDL_SetRenderDrawColor(renderer, 60, 40, 240, 255);
+    SDL_Rect potentialEnergy;
+    potentialEnergy.x = WINDOWS_WIDTH - 70;
+    potentialEnergy.y = WINDOWS_HEIGHT - 300;
+    potentialEnergy.h = (int) (system.potentialEnergy * mult);
+    potentialEnergy.w = 10;
+
+    SDL_RenderFillRect(renderer, &potentialEnergy);
+
+
     SDL_RenderPresent(renderer);
 
 
