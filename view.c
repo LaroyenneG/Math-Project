@@ -4,8 +4,6 @@
 
 #include <SDL2/SDL.h>
 #include "view.h"
-#include "delete-me.h"
-
 
 static SDL_Window *pWindow = NULL;
 
@@ -68,6 +66,7 @@ void SDL_Circle(SDL_Renderer *renderer, int cx, int cy, int rayon) {
     }
     SDL_Circle(renderer, cx, cy, rayon - 1);
 }
+
 
 void showSystemZero() {
 
@@ -183,7 +182,7 @@ void showSystemTime(system_t system) {
         }
 
 
-        pWindow = SDL_CreateWindow("Pendule avec chariot, à l'instant t", SDL_WINDOWPOS_UNDEFINED,
+        pWindow = SDL_CreateWindow("Pendule avec chariot en fonction du temps", SDL_WINDOWPOS_UNDEFINED,
                                    SDL_WINDOWPOS_UNDEFINED,
                                    WINDOWS_WIDTH,
                                    WINDOWS_HEIGHT,
@@ -266,14 +265,16 @@ void showSystemTime(system_t system) {
      */
 
     double mult = 100.0;
+    int maxBarSize = WINDOWS_HEIGHT / 3;
+    int wBar = 10;
 
     SDL_SetRenderDrawColor(renderer, 10, 151, 40, 255);
 
     SDL_Rect mechanicalEnergy;
     mechanicalEnergy.x = WINDOWS_WIDTH - 100;
-    mechanicalEnergy.y = WINDOWS_HEIGHT - 300;
+    mechanicalEnergy.y = WINDOWS_HEIGHT - maxBarSize;
     mechanicalEnergy.h = (int) (system.mechanicalEnergy * mult);
-    mechanicalEnergy.w = 10;
+    mechanicalEnergy.w = wBar;
 
     SDL_RenderFillRect(renderer, &mechanicalEnergy);
 
@@ -281,18 +282,19 @@ void showSystemTime(system_t system) {
     SDL_SetRenderDrawColor(renderer, 254, 51, 0, 255);
     SDL_Rect kineticEnergy;
     kineticEnergy.x = WINDOWS_WIDTH - 85;
-    kineticEnergy.y = WINDOWS_HEIGHT - 300;
+    kineticEnergy.y = WINDOWS_HEIGHT - maxBarSize;
     kineticEnergy.h = (int) (system.kineticEnergy * mult);
-    kineticEnergy.w = 10;
+    kineticEnergy.w = wBar;
 
     SDL_RenderFillRect(renderer, &kineticEnergy);
+
 
     SDL_SetRenderDrawColor(renderer, 60, 40, 240, 255);
     SDL_Rect potentialEnergy;
     potentialEnergy.x = WINDOWS_WIDTH - 70;
-    potentialEnergy.y = WINDOWS_HEIGHT - 300;
+    potentialEnergy.y = WINDOWS_HEIGHT - maxBarSize;
     potentialEnergy.h = (int) (system.potentialEnergy * mult);
-    potentialEnergy.w = 10;
+    potentialEnergy.w = wBar;
 
     SDL_RenderFillRect(renderer, &potentialEnergy);
 

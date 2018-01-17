@@ -9,7 +9,7 @@
 
 #define C_MULT 500.0
 #define WINDOWS_WIDTH 1920
-#define WINDOWS_HEIGHT 1000
+#define WINDOWS_HEIGHT 1080
 #define OFFSET_HEIGHT 200
 
 void showSystemZero();
