@@ -308,7 +308,7 @@ void showSystemTime(system_t system) {
     fprintf(stderr, "\tEnergie potentielle=%lf\n", system.potentialEnergy);
 
 
-    SDL_Delay(10);
+    SDL_Delay(20);
 
     SDL_DestroyRenderer(renderer);
 }

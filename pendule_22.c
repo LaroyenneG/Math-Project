@@ -58,7 +58,6 @@ point_t rectangleGravityCenter(point_t a, point_t b) {
 }
 
 
-
 /*
  * Returns a system at time t0.
  */
@@ -69,14 +68,14 @@ system_t buildSystem(double angle, double p0) {
     system.trolley.position.x = p0;
     system.trolley.position.y = 0.0;
     system.trolley.mass = MASS_CAR;
-    system.trolley.friction = 0.0;
+    system.trolley.friction = LINEAR_FRICTION_TROLLEY;
     system.trolley.velocityVector.x = 0.0;
     system.trolley.velocityVector.y = 0.0;
 
 
     system.pivot.angle = angle * PI / 180;
     system.pivot.rotationSpeed = 0.0;
-    system.pivot.friction = 0.0;
+    system.pivot.friction = PIVOT_FRICTION;
     putPivotPositionSystem(&system);
 
 

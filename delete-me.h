@@ -21,21 +21,21 @@
  * pendule_22.h
  ***************************************************************************************************/
 
-#define GRAVITY 9.807
+#define GRAVITY 9.80665
 #define PI 3.141592653589793
 
-#define BAR_TOTAL_LENGTH 1.0
-#define BAR_DIAMETER 0.01
-#define BAR_MASS 0.2
-#define FLYWEIGHT_HEIGHT 0.07
-#define OUTER_DIAMETER_FLYWEIGHT 0.06
-#define DISTANCE_CENTER_FLYWEIGHT_PINTLE 0.95
-#define MASS_FLYWEIGHT 0.30
-#define MASS_CAR 1.20
-#define LINEAR_FRICTION_CAR 0.001
-#define PINTLE_FRICTION 20.0
+#define BAR_TOTAL_LENGTH 1.0                    // (m)
+#define BAR_DIAMETER 0.01                       // (m)
+#define BAR_MASS 0.2                            // (kg)
+#define FLYWEIGHT_HEIGHT 0.07                   // (m)
+#define OUTER_DIAMETER_FLYWEIGHT 0.06           // (m)
+#define DISTANCE_CENTER_FLYWEIGHT_PINTLE 0.95   // (m)
+#define MASS_FLYWEIGHT 0.30                     // (kg)
+#define MASS_CAR 1.20                           // (kg)
+#define LINEAR_FRICTION_TROLLEY 0.1            // (N/m/s)
+#define PIVOT_FRICTION 0.2                     // (N*m/s)
 
-#define H 0.01
+#define H 0.02
 
 
 typedef struct {
