@@ -21,21 +21,21 @@
  * pendule_22.h
  ***************************************************************************************************/
 
-#define GRAVITY 9.80665
+#define GRAVITY 9.80665 // (m/s^-2)
 #define PI 3.141592653589793
 
-#define BAR_TOTAL_LENGTH 1.0                    // (m)
-#define BAR_DIAMETER 0.01                       // (m)
-#define BAR_MASS 0.2                            // (kg)
-#define FLYWEIGHT_HEIGHT 0.07                   // (m)
-#define OUTER_DIAMETER_FLYWEIGHT 0.06           // (m)
+#define BAR_TOTAL_LENGTH 1.0    // (m)
+#define BAR_DIAMETER 0.01   // (m)
+#define BAR_MASS 0.2    // (kg)
+#define FLYWEIGHT_HEIGHT 0.07   // (m)
+#define OUTER_DIAMETER_FLYWEIGHT 0.06   // (m)
 #define DISTANCE_CENTER_FLYWEIGHT_PINTLE 0.95   // (m)
-#define MASS_FLYWEIGHT 0.30                     // (kg)
-#define MASS_CAR 1.20                           // (kg)
-#define LINEAR_FRICTION_TROLLEY 0.1            // (N/m/s)
-#define PIVOT_FRICTION 0.2                     // (N*m/s)
+#define MASS_FLYWEIGHT 0.30 // (kg)
+#define MASS_CAR 1.20   // (kg)
+#define LINEAR_FRICTION_TROLLEY 0.1 // (N/m/s)
+#define PIVOT_FRICTION 0.2    // (N*m/rad/s)
 
-#define H 0.02
+#define H 0.02  // (s)
 
 
 typedef struct {
@@ -100,8 +100,6 @@ typedef struct {
     double potentialEnergy;
     double kineticEnergy;
 
-    // incertain
-
     double lengthPendulum;
     double lengthBar;
     double lengthWeight;
@@ -140,7 +138,7 @@ void putPendulumVelocityVectorSystem(system_t *system);
 
 void putInertiaCenterSystem(system_t *system);
 
-point_t applyRotationFriction(double angle, double length, double speedRot, double speedTro, double friction);
+point_t applyRotationFriction(double angle, double length, double speedRot, double friction);
 
 point_t applyLinearFriction(double speed, double friction);
 
@@ -152,12 +150,6 @@ double distancePoint(point_t point1, point_t point2);
 /****************************************************************************************************
  * end pendule_22.h
  ***************************************************************************************************/
-
-
-
-
-
-
 
 
 #endif //MATH_PROJECT_DELETE_ME_H

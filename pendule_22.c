@@ -237,12 +237,17 @@ point_t applyLinearFriction(double speed, double friction) {
     vector.x = speed;
     vector.y = 0.0;
 
-    // application des frottements
+    /*
+        Dans le cas d’une vitesse importante, la force de frottement est proportionnelle au carré de
+         la vitesse.
 
-    point_t cpVector = vector;
+        point_t cpVector = vector;
 
-    vector.x *= (-friction * vectorNorm(cpVector));
-    vector.y *= (-friction * vectorNorm(cpVector));
+        vector.x *= -friction * vectorNorm(cpVector);
+        vector.y *= -friction * vectorNorm(cpVector);
+     */
+
+    vector.x = speed * -friction;
 
     return vector;
 }
@@ -251,20 +256,15 @@ point_t applyLinearFriction(double speed, double friction) {
 /*
  * Returns the values of the rotation friction forces.
  */
-point_t applyRotationFriction(double angle, double length, double speedRot, double speedTro, double friction) {
-
+point_t applyRotationFriction(double angle, double length, double speedRot, double friction) {
 
     point_t vector;
 
-    vector.x = speedTro + length * speedRot * cos(angle);
+    vector.x = length * speedRot * cos(angle);
     vector.y = length * speedRot * sin(angle);
 
-    // application des frottements
-
-    point_t cpVector = vector;
-
-    vector.x *= (-friction * vectorNorm(cpVector));
-    vector.y *= (-friction * vectorNorm(cpVector));
+    vector.x *= -friction;
+    vector.y *= -friction;
 
     return vector;
 }
@@ -283,7 +283,7 @@ double angleEquation(double angle, double trolleySpeed, double rotationSpeed, sy
     double length = system.lengthPendulum;
 
 
-    point_t vectorRot = applyRotationFriction(angle, system.lengthPendulum, rotationSpeed, trolleySpeed, 0.0);
+    point_t vectorRot = applyRotationFriction(angle, system.lengthPendulum, rotationSpeed, system.pivot.friction);
 
     double a =
             massPendulum * length * y * pow(rotationSpeed, 2.0) + x * y * (massPendulum * GRAVITY - vectorRot.y) +
@@ -324,7 +324,7 @@ double linearEquation(double angle, double trolleySpeed, double rotationSpeed, s
     double massTrolley = system.trolley.mass;
     double length = system.lengthPendulum;
 
-    point_t vectorRot = applyRotationFriction(angle, system.lengthPendulum, rotationSpeed, trolleySpeed, 0.0);
+    point_t vectorRot = applyRotationFriction(angle, system.lengthPendulum, rotationSpeed, system.pivot.rotationSpeed);
 
     double a =
             massPendulum * length * y * pow(rotationSpeed, 2.0) + x * y * (massPendulum * GRAVITY - vectorRot.y) +
@@ -408,7 +408,7 @@ int main(int argc, char **argv) {
 
     system_t system = buildSystem(5.0, 0.0);
 
-    while (system.mechanicalEnergy > 0.000001) {
+    while (system.mechanicalEnergy >= 0.000001) {
 
         printLineSystem(system, time);
 
