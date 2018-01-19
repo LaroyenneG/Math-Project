@@ -387,7 +387,7 @@ void printLineSystem(system_t system, double time) {
     double position = system.trolley.position.x;
     double angle = system.pivot.angle;
 
-    printf("%lf\t%lf\t%lf\n", time, position, angle);
+    printf("%lf\t%lf\t%lf\n", time, position, angle*(180/PI));
 }
 
 
@@ -400,11 +400,13 @@ int main(int argc, char **argv) {
     }
 
 
+    printf("Temps (s)\tPosition (m)\tAngle (degré)\n");
+
     double time = 0.0;
 
     setlocale(LC_NUMERIC, "fr_FR.UTF-8");
 
-    showSystemZero();
+    //showSystemZero();
 
     system_t system = buildSystem(5.0, 0.0);
 
@@ -412,7 +414,7 @@ int main(int argc, char **argv) {
 
         printLineSystem(system, time);
 
-        showSystemTime(system);
+        //showSystemTime(system);
 
         fprintf(stderr, "%lf\n", system.mechanicalEnergy);
 
@@ -425,7 +427,7 @@ int main(int argc, char **argv) {
 
     printLineSystem(system, time);
 
-    showSystemTime(system);
+    //showSystemTime(system);
 
 
     return 0;
