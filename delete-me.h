@@ -5,16 +5,10 @@
 #ifndef MATH_PROJECT_DELETE_ME_H
 #define MATH_PROJECT_DELETE_ME_H
 
-#include "libmat.h"
-
-
-
-
-
 
 /*
- * Code normalement stocké dans le fichier d'entête. Il est exceptionnellement placé
- * dans ce fichier en raison des contraintes de remise.
+ * Ce code normalement stocké dans le fichier d'entête.
+ * Il est exceptionnellement placé dans ce fichier en raison des contraintes de remise.
  */
 
 /****************************************************************************************************
@@ -27,11 +21,11 @@
 #define BAR_TOTAL_LENGTH 1.0    // (m)
 #define BAR_DIAMETER 0.01   // (m)
 #define BAR_MASS 0.2    // (kg)
-#define FLYWEIGHT_HEIGHT 0.07   // (m)
-#define OUTER_DIAMETER_FLYWEIGHT 0.06   // (m)
-#define DISTANCE_CENTER_FLYWEIGHT_PINTLE 0.95   // (m)
-#define MASS_FLYWEIGHT 0.30 // (kg)
-#define MASS_CAR 1.20   // (kg)
+#define WEIGHT_HEIGHT 0.07   // (m)
+#define OUTER_DIAMETER_WEIGHT 0.06   // (m)
+#define DISTANCE_CENTER_WEIGHT_PINTLE 0.95   // (m)
+#define MASS_WEIGHT 0.30 // (kg)
+#define MASS_TROLLEY 1.20   // (kg)
 #define LINEAR_FRICTION_TROLLEY 0.1 // (N/m/s)
 #define PIVOT_FRICTION 0.2    // (N*m/rad/s)
 
@@ -126,6 +120,8 @@ system_t nextTimeSystem(system_t system);
 
 double vectorNorm(point_t v);
 
+point_t coordoangle(double o);
+
 void printLineSystem(system_t system, double time);
 
 system_t rk4System(double h, system_t system);
@@ -153,6 +149,5 @@ double linearEquation(double angle, double trolleySpeed, double rotationSpeed, s
 /****************************************************************************************************
  * end pendule_22.h
  ***************************************************************************************************/
-
 
 #endif //MATH_PROJECT_DELETE_ME_H

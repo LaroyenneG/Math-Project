@@ -45,6 +45,20 @@ double vectorNorm(point_t v) {
 
 
 /*
+ *
+ */
+point_t coordoangle(double o) {
+
+    point_t point;
+
+    point.x = cos(o);
+    point.y = sin(o);
+
+    return point;
+}
+
+
+/*
  * Returns the center of gravity of a rectangle.
  */
 point_t rectangleGravityCenter(point_t a, point_t b) {
@@ -67,7 +81,7 @@ system_t buildSystem(double angle, double p0) {
 
     system.trolley.position.x = p0;
     system.trolley.position.y = 0.0;
-    system.trolley.mass = MASS_CAR;
+    system.trolley.mass = MASS_TROLLEY;
     system.trolley.friction = LINEAR_FRICTION_TROLLEY;
     system.trolley.velocityVector.x = 0.0;
     system.trolley.velocityVector.y = 0.0;
@@ -79,13 +93,13 @@ system_t buildSystem(double angle, double p0) {
     putPivotPositionSystem(&system);
 
 
-    system.weight.mass = MASS_FLYWEIGHT;
+    system.weight.mass = MASS_WEIGHT;
     system.weight.velocityVector.x = 0.0;
     system.weight.velocityVector.y = 0.0;
-    system.weight.a.x = system.pivot.position.x - OUTER_DIAMETER_FLYWEIGHT / 2.0;
-    system.weight.a.y = system.pivot.position.y + (DISTANCE_CENTER_FLYWEIGHT_PINTLE - FLYWEIGHT_HEIGHT / 2.0);
-    system.weight.b.x = system.pivot.position.x + OUTER_DIAMETER_FLYWEIGHT / 2.0;
-    system.weight.b.y = system.pivot.position.y + (DISTANCE_CENTER_FLYWEIGHT_PINTLE + FLYWEIGHT_HEIGHT / 2.0);
+    system.weight.a.x = system.pivot.position.x - OUTER_DIAMETER_WEIGHT / 2.0;
+    system.weight.a.y = system.pivot.position.y + (DISTANCE_CENTER_WEIGHT_PINTLE - WEIGHT_HEIGHT / 2.0);
+    system.weight.b.x = system.pivot.position.x + OUTER_DIAMETER_WEIGHT / 2.0;
+    system.weight.b.y = system.pivot.position.y + (DISTANCE_CENTER_WEIGHT_PINTLE + WEIGHT_HEIGHT / 2.0);
     system.weight.gravityCenter = rectangleGravityCenter(system.weight.a, system.weight.b);
 
 
@@ -260,13 +274,9 @@ point_t buildRotationFriction(double angle, double length, double speedRot, doub
 }
 
 
-/*
- * Differential equation for pivot evolution.
- */
-double angleEquation(double angle, double trolleySpeed, double rotationSpeed, system_t system) {
+double *getCoeef(double angle, double rotationSpeed, double trolleySpeed, system_t system) {
 
-    double x = cos(angle);
-    double y = sin(angle);
+    point_t pAngle = coordoangle(angle);
 
     double massPendulum = system.bar.mass + system.weight.mass;
     double massTrolley = system.trolley.mass;
@@ -276,24 +286,57 @@ double angleEquation(double angle, double trolleySpeed, double rotationSpeed, sy
     point_t rotFriction = buildRotationFriction(angle, system.lengthPendulum, rotationSpeed, system.pivot.friction);
     point_t linFriction = buildLinearFriction(trolleySpeed, system.trolley.friction);
 
-    double a = massPendulum * length * y * pow(rotationSpeed, 2.0) + x * y * (massPendulum * GRAVITY - rotFriction.y) +
-               pow(y, 2.0) * rotFriction.x + linFriction.x;
 
-    double b = massTrolley + massPendulum - massPendulum * pow(x, 2.0);
+    double *result = malloc(sizeof(double) * 2);
+    if (result == NULL) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
 
-    return -GRAVITY / length * y - x / length * a / b + y / massPendulum / length * rotFriction.y +
-           x / massPendulum / length * rotFriction.x;
+    result[0] = massPendulum * length * pAngle.y * pow(rotationSpeed, 2.0) +
+                pAngle.x * pAngle.y * (massPendulum * GRAVITY - rotFriction.y) +
+                pow(pAngle.y, 2.0) * rotFriction.x + linFriction.x;
+
+    result[1] = massTrolley + massPendulum - massPendulum * pow(pAngle.x, 2.0);
+
+    return result;
+}
+
+
+/*
+ * Differential equations for pivot evolution.
+ */
+double angleEquation(double angle, double trolleySpeed, double rotationSpeed, system_t system) {
+
+    point_t pAngle = coordoangle(angle);
+
+    double massPendulum = system.bar.mass + system.weight.mass;
+    double massTrolley = system.trolley.mass;
+    double length = system.lengthPendulum;
+
+
+    point_t rotFriction = buildRotationFriction(angle, system.lengthPendulum, rotationSpeed, system.pivot.friction);
+    point_t linFriction = buildLinearFriction(trolleySpeed, system.trolley.friction);
+
+    double a = massPendulum * length * pAngle.y * pow(rotationSpeed, 2.0) +
+               pAngle.x * pAngle.y * (massPendulum * GRAVITY - rotFriction.y) +
+               pow(pAngle.y, 2.0) * rotFriction.x + linFriction.x;
+
+    double b = massTrolley + massPendulum - massPendulum * pow(pAngle.x, 2.0);
+
+    return -GRAVITY / length * pAngle.y - pAngle.x / length * a / b + pAngle.y / massPendulum / length * rotFriction.y +
+           pAngle.x / massPendulum / length * rotFriction.x;
 
 }
 
 
 /*
- * Differential equation for moving the trolley.
+ * Differential equations for moving the trolley.
  */
 double linearEquation(double angle, double trolleySpeed, double rotationSpeed, system_t system) {
 
-    double x = cos(angle);
-    double y = sin(angle);
+    point_t pAngle = coordoangle(angle);
+
 
     double massPendulum = system.bar.mass + system.weight.mass;
     double massTrolley = system.trolley.mass;
@@ -304,10 +347,11 @@ double linearEquation(double angle, double trolleySpeed, double rotationSpeed, s
     point_t linFriction = buildLinearFriction(trolleySpeed, system.trolley.friction);
 
 
-    double a = massPendulum * length * y * pow(rotationSpeed, 2.0) + x * y * (massPendulum * GRAVITY - rotFriction.y) +
-               pow(y, 2.0) * rotFriction.x + linFriction.x;
+    double a = massPendulum * length * pAngle.y * pow(rotationSpeed, 2.0) +
+               pAngle.x * pAngle.y * (massPendulum * GRAVITY - rotFriction.y) +
+               pow(pAngle.y, 2.0) * rotFriction.x + linFriction.x;
 
-    double b = massTrolley + massPendulum - massPendulum * pow(x, 2.0);
+    double b = massTrolley + massPendulum - massPendulum * pow(pAngle.x, 2.0);
 
     return a / b;
 }
@@ -357,15 +401,11 @@ system_t rk4System(double h, system_t system) {
     double k4b = h * (rotationSpeed + k3d);
     double k4d = h * angleEquation(angle + k3b, trolleySpeed + k3c, rotationSpeed + k3d, system);
 
-    double ka = (k1a + 2 * k2a + 2 * k3a + k4a) / 6.0;
-    double kb = (k1b + 2 * k2b + 2 * k3b + k4b) / 6.0;
-    double kc = (k1c + 2 * k2c + 2 * k3c + k4c) / 6.0;
-    double kd = (k1d + 2 * k2d + 2 * k3d + k4d) / 6.0;
 
-    systemH.trolley.position.x += ka;
-    systemH.pivot.angle += kb;
-    systemH.trolley.velocityVector.x += kc;
-    systemH.pivot.rotationSpeed += kd;
+    systemH.trolley.position.x += (k1a + 2 * k2a + 2 * k3a + k4a) / 6.0;
+    systemH.pivot.angle += (k1b + 2 * k2b + 2 * k3b + k4b) / 6.0;
+    systemH.trolley.velocityVector.x += (k1c + 2 * k2c + 2 * k3c + k4c) / 6.0;
+    systemH.pivot.rotationSpeed += (k1d + 2 * k2d + 2 * k3d + k4d) / 6.0;
 
     return systemH;
 }
