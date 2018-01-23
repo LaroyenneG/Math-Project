@@ -120,8 +120,6 @@ system_t nextTimeSystem(system_t system);
 
 double vectorNorm(point_t v);
 
-point_t coordoangle(double o);
-
 void printLineSystem(system_t system, double time);
 
 system_t rk4System(double h, system_t system);
