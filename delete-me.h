@@ -138,14 +138,17 @@ void putPendulumVelocityVectorSystem(system_t *system);
 
 void putInertiaCenterSystem(system_t *system);
 
-point_t applyRotationFriction(double angle, double length, double speedRot, double friction);
+point_t buildRotationFriction(double angle, double length, double speedRot, double friction);
 
-point_t applyLinearFriction(double speed, double friction);
+point_t buildLinearFriction(double speed, double friction);
 
 void stopSystem(system_t *system);
 
 double distancePoint(point_t point1, point_t point2);
 
+double angleEquation(double angle, double trolleySpeed, double rotationSpeed, system_t system);
+
+double linearEquation(double angle, double trolleySpeed, double rotationSpeed, system_t system);
 
 /****************************************************************************************************
  * end pendule_22.h

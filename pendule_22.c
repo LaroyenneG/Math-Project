@@ -228,24 +228,14 @@ double kineticEnergySystem(system_t system) {
 
 
 /*
- * Returns the values of the linear friction forces.
+ * Returns the vector of the linear friction forces.
  */
-point_t applyLinearFriction(double speed, double friction) {
+point_t buildLinearFriction(double speed, double friction) {
 
     point_t vector;
 
     vector.x = speed;
     vector.y = 0.0;
-
-    /*
-        Dans le cas d’une vitesse importante, la force de frottement est proportionnelle au carré de
-         la vitesse.
-
-        point_t cpVector = vector;
-
-        vector.x *= -friction * vectorNorm(cpVector);
-        vector.y *= -friction * vectorNorm(cpVector);
-     */
 
     vector.x = speed * -friction;
 
@@ -254,9 +244,9 @@ point_t applyLinearFriction(double speed, double friction) {
 
 
 /*
- * Returns the values of the rotation friction forces.
+ * Returns the vector of the rotation friction forces.
  */
-point_t applyRotationFriction(double angle, double length, double speedRot, double friction) {
+point_t buildRotationFriction(double angle, double length, double speedRot, double friction) {
 
     point_t vector;
 
@@ -283,32 +273,17 @@ double angleEquation(double angle, double trolleySpeed, double rotationSpeed, sy
     double length = system.lengthPendulum;
 
 
-    point_t vectorRot = applyRotationFriction(angle, system.lengthPendulum, rotationSpeed, system.pivot.friction);
+    point_t rotFriction = buildRotationFriction(angle, system.lengthPendulum, rotationSpeed, system.pivot.friction);
+    point_t linFriction = buildLinearFriction(trolleySpeed, system.trolley.friction);
 
-    double a =
-            massPendulum * length * y * pow(rotationSpeed, 2.0) + x * y * (massPendulum * GRAVITY - vectorRot.y) +
-            pow(y, 2.0) * vectorRot.x +
-            applyLinearFriction(trolleySpeed, system.trolley.friction).x;
+    double a = massPendulum * length * y * pow(rotationSpeed, 2.0) + x * y * (massPendulum * GRAVITY - rotFriction.y) +
+               pow(y, 2.0) * rotFriction.x + linFriction.x;
 
     double b = massTrolley + massPendulum - massPendulum * pow(x, 2.0);
 
-    return -GRAVITY / length * y - x / length * a / b + y / massPendulum / length * vectorRot.y +
-           x / massPendulum / length * vectorRot.x;
+    return -GRAVITY / length * y - x / length * a / b + y / massPendulum / length * rotFriction.y +
+           x / massPendulum / length * rotFriction.x;
 
-}
-
-
-/*
- * Puts the system in a state without energy.
- */
-void stopSystem(system_t *system) {
-
-    system->pivot.angle = 0.0;
-    system->pivot.rotationSpeed = 0.0;
-    system->trolley.velocityVector.x = 0.0;
-    system->trolley.velocityVector.y = 0.0;
-
-    *system = nextTimeSystem(*system);
 }
 
 
@@ -324,16 +299,31 @@ double linearEquation(double angle, double trolleySpeed, double rotationSpeed, s
     double massTrolley = system.trolley.mass;
     double length = system.lengthPendulum;
 
-    point_t vectorRot = applyRotationFriction(angle, system.lengthPendulum, rotationSpeed, system.pivot.rotationSpeed);
+    point_t rotFriction = buildRotationFriction(angle, system.lengthPendulum, rotationSpeed,
+                                                system.pivot.rotationSpeed);
+    point_t linFriction = buildLinearFriction(trolleySpeed, system.trolley.friction);
 
-    double a =
-            massPendulum * length * y * pow(rotationSpeed, 2.0) + x * y * (massPendulum * GRAVITY - vectorRot.y) +
-            pow(y, 2.0) * vectorRot.x +
-            applyLinearFriction(trolleySpeed, system.trolley.friction).x;
+
+    double a = massPendulum * length * y * pow(rotationSpeed, 2.0) + x * y * (massPendulum * GRAVITY - rotFriction.y) +
+               pow(y, 2.0) * rotFriction.x + linFriction.x;
 
     double b = massTrolley + massPendulum - massPendulum * pow(x, 2.0);
 
     return a / b;
+}
+
+
+/*
+ * Puts the system in a state without energy.
+ */
+void stopSystem(system_t *system) {
+
+    system->pivot.angle = 0.0;
+    system->pivot.rotationSpeed = 0.0;
+    system->trolley.velocityVector.x = 0.0;
+    system->trolley.velocityVector.y = 0.0;
+
+    *system = nextTimeSystem(*system);
 }
 
 
@@ -387,7 +377,7 @@ void printLineSystem(system_t system, double time) {
     double position = system.trolley.position.x;
     double angle = system.pivot.angle;
 
-    printf("%lf\t%lf\t%lf\n", time, position, angle*(180/PI));
+    printf("%lf\t%lf\t%lf\n", time, position, angle * (180 / PI));
 }
 
 
@@ -406,7 +396,7 @@ int main(int argc, char **argv) {
 
     setlocale(LC_NUMERIC, "fr_FR.UTF-8");
 
-    //showSystemZero();
+    showSystemZero();
 
     system_t system = buildSystem(5.0, 0.0);
 
@@ -414,7 +404,7 @@ int main(int argc, char **argv) {
 
         printLineSystem(system, time);
 
-        //showSystemTime(system);
+        showSystemTime(system);
 
         fprintf(stderr, "%lf\n", system.mechanicalEnergy);
 
@@ -427,7 +417,7 @@ int main(int argc, char **argv) {
 
     printLineSystem(system, time);
 
-    //showSystemTime(system);
+    showSystemTime(system);
 
 
     return 0;
