@@ -140,9 +140,11 @@ void stopSystem(system_t *system);
 
 double distancePoint(point_t point1, point_t point2);
 
-double angleEquation(double angle, double trolleySpeed, double rotationSpeed, system_t system);
+double rotationSpeedEquation(double angle, double trolleySpeed, double rotationSpeed, system_t system);
 
-double linearEquation(double angle, double trolleySpeed, double rotationSpeed, system_t system);
+double linearSpeedEquation(double angle, double trolleySpeed, double rotationSpeed, system_t system);
+
+double *getEquationCoefficients(double angle, double rotationSpeed, double trolleySpeed, system_t system);
 
 /****************************************************************************************************
  * end pendule_22.h

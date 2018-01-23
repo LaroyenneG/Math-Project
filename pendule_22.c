@@ -260,7 +260,7 @@ point_t buildRotationFriction(double angle, double length, double speedRot, doub
 }
 
 
-double *getCoeef(double angle, double rotationSpeed, double trolleySpeed, system_t system) {
+double *getEquationCoefficients(double angle, double rotationSpeed, double trolleySpeed, system_t system) {
 
     double massPendulum = system.bar.mass + system.weight.mass;
     double massTrolley = system.trolley.mass;
@@ -288,13 +288,13 @@ double *getCoeef(double angle, double rotationSpeed, double trolleySpeed, system
 
 
 /*
- * Differential equations for pivot evolution.
+ * Differential equation for pivot rotation speed evolution.
  */
-double angleEquation(double angle, double trolleySpeed, double rotationSpeed, system_t system) {
+double rotationSpeedEquation(double angle, double trolleySpeed, double rotationSpeed, system_t system) {
 
     point_t rotFriction = buildRotationFriction(angle, system.lengthPendulum, rotationSpeed, system.pivot.friction);
 
-    double *cc = getCoeef(angle, rotationSpeed, trolleySpeed, system);
+    double *cc = getEquationCoefficients(angle, rotationSpeed, trolleySpeed, system);
 
     double result = -GRAVITY / system.lengthPendulum * sin(angle) - cos(angle) / system.lengthPendulum * cc[0] / cc[1] +
                     sin(angle) / (system.bar.mass + system.weight.mass) / system.lengthPendulum * rotFriction.y +
@@ -307,11 +307,11 @@ double angleEquation(double angle, double trolleySpeed, double rotationSpeed, sy
 
 
 /*
- * Differential equations for moving the trolley.
+ * Differential equations for trolley speed evolution.
  */
-double linearEquation(double angle, double trolleySpeed, double rotationSpeed, system_t system) {
+double linearSpeedEquation(double angle, double trolleySpeed, double rotationSpeed, system_t system) {
 
-    double *cc = getCoeef(angle, rotationSpeed, trolleySpeed, system);
+    double *cc = getEquationCoefficients(angle, rotationSpeed, trolleySpeed, system);
 
     double result = cc[0] / cc[1];
 
@@ -354,35 +354,35 @@ system_t rk4System(double h, system_t system) {
     double rotationSpeed_k[4];
 
     trolleyPosition_k[0] = h * trolleySpeed;
-    trolleySpeed_k[0] = h * linearEquation(angle, trolleySpeed, rotationSpeed, system);
+    trolleySpeed_k[0] = h * linearSpeedEquation(angle, trolleySpeed, rotationSpeed, system);
     rotationPosition_k[0] = h * rotationSpeed;
-    rotationSpeed_k[0] = h * angleEquation(angle, trolleySpeed, rotationSpeed, system);
+    rotationSpeed_k[0] = h * rotationSpeedEquation(angle, trolleySpeed, rotationSpeed, system);
 
     trolleyPosition_k[1] = h * (trolleySpeed + trolleySpeed_k[0] / 2);
     trolleySpeed_k[1] =
-            h * linearEquation(angle + rotationPosition_k[0] / 2, trolleySpeed + trolleySpeed_k[0] / 2,
-                               rotationSpeed + rotationSpeed_k[0] / 2, system);
+            h * linearSpeedEquation(angle + rotationPosition_k[0] / 2, trolleySpeed + trolleySpeed_k[0] / 2,
+                                    rotationSpeed + rotationSpeed_k[0] / 2, system);
     rotationPosition_k[1] = h * (rotationSpeed + rotationSpeed_k[0] / 2);
     rotationSpeed_k[1] =
-            h * angleEquation(angle + rotationPosition_k[0] / 2, trolleySpeed + trolleySpeed_k[0] / 2,
-                              rotationSpeed + rotationSpeed_k[0] / 2, system);
+            h * rotationSpeedEquation(angle + rotationPosition_k[0] / 2, trolleySpeed + trolleySpeed_k[0] / 2,
+                                      rotationSpeed + rotationSpeed_k[0] / 2, system);
 
     trolleyPosition_k[2] = h * (trolleySpeed + trolleySpeed_k[1] / 2);
     trolleySpeed_k[2] =
-            h * linearEquation(angle + rotationPosition_k[1] / 2, trolleySpeed + trolleySpeed_k[1] / 2,
-                               rotationSpeed + rotationSpeed_k[1] / 2, system);
+            h * linearSpeedEquation(angle + rotationPosition_k[1] / 2, trolleySpeed + trolleySpeed_k[1] / 2,
+                                    rotationSpeed + rotationSpeed_k[1] / 2, system);
     rotationPosition_k[2] = h * (rotationSpeed + rotationSpeed_k[1] / 2);
     rotationSpeed_k[2] =
-            h * angleEquation(angle + rotationPosition_k[1] / 2, trolleySpeed + trolleySpeed_k[1] / 2,
-                              rotationSpeed + rotationSpeed_k[1] / 2, system);
+            h * rotationSpeedEquation(angle + rotationPosition_k[1] / 2, trolleySpeed + trolleySpeed_k[1] / 2,
+                                      rotationSpeed + rotationSpeed_k[1] / 2, system);
 
     trolleyPosition_k[3] = h * (trolleySpeed + trolleySpeed_k[2]);
-    trolleySpeed_k[3] = h * linearEquation(angle + rotationPosition_k[2], trolleySpeed + trolleySpeed_k[2],
-                                           rotationSpeed + rotationSpeed_k[2], system);
+    trolleySpeed_k[3] = h * linearSpeedEquation(angle + rotationPosition_k[2], trolleySpeed + trolleySpeed_k[2],
+                                                rotationSpeed + rotationSpeed_k[2], system);
     rotationPosition_k[3] = h * (rotationSpeed + rotationSpeed_k[2]);
-    rotationSpeed_k[3] = h * angleEquation(angle + rotationPosition_k[2], trolleySpeed + trolleySpeed_k[2],
-                                           rotationSpeed + rotationSpeed_k[2],
-                                           system);
+    rotationSpeed_k[3] = h * rotationSpeedEquation(angle + rotationPosition_k[2], trolleySpeed + trolleySpeed_k[2],
+                                                   rotationSpeed + rotationSpeed_k[2],
+                                                   system);
 
 
     systemH.trolley.position.x +=
@@ -412,13 +412,20 @@ void printLineSystem(system_t system, double time) {
 int main(int argc, char **argv) {
 
 
-    if (argc > 1) {
-        fprintf(stderr, "Usage : pendule_22\n");
+    if (argc != 3) {
+        fprintf(stderr, "usage : pendule_22 <angle> <potion>\n");
         exit(EXIT_FAILURE);
     }
 
+    double iAngle = atof(argv[1]);
+    double iPosition = atof(argv[2]);
 
-    printf("Temps (s)\tPosition (m)\tAngle (radian)\n");
+    if (sqrt(pow(iAngle, 2.0)) > 180.0) {
+        fprintf(stderr, "Angle must be between -180° and 180°\n");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Time (s)\tPosition (m)\tAngle (°)\n");
 
     double time = 0.0;
 
@@ -426,7 +433,7 @@ int main(int argc, char **argv) {
 
     // showSystemZero();
 
-    system_t system = buildSystem(5.0, 0.0);
+    system_t system = buildSystem(iAngle, iPosition);
 
     while (system.mechanicalEnergy >= 0.000001) {
 
