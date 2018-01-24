@@ -260,6 +260,7 @@ point_t buildRotationFriction(double angle, double length, double speedRot, doub
 }
 
 
+
 double *getEquationCoefficients(double angle, double rotationSpeed, double trolleySpeed, system_t system) {
 
     double massPendulum = system.bar.mass + system.weight.mass;
@@ -405,7 +406,7 @@ void printLineSystem(system_t system, double time) {
     double position = system.trolley.position.x;
     double angle = system.pivot.angle;
 
-    printf("%lf\t%lf\t%lf\n", time, position, angle /* * (180 / PI)*/);
+    printf("%lf\t%lf\t%lf\n", time, position, angle*(180 / PI));
 }
 
 
