@@ -29,7 +29,7 @@
 #define LINEAR_FRICTION_TROLLEY 0.1 // (N/m/s)
 #define PIVOT_FRICTION 0.2    // (N*m/rad/s)
 
-#define H 0.02  // (s)
+#define H 0.01  // (s)
 
 
 typedef struct {
